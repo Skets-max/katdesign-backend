@@ -126,6 +126,10 @@ async function init() {
   }
 }
 
-init().catch(err => { console.error('Database init failed:', err.message); process.exit(1); });
+const dbReady = init().catch(err => {
+  console.error('Database init failed:', err.message);
+  process.exit(1);
+});
 
 module.exports = db;
+module.exports.ready = dbReady;
