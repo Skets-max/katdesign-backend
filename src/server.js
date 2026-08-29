@@ -3,7 +3,7 @@ const cors         = require('cors');
 const path         = require('path');
 
 // Boot database (creates tables + seed data on first run)
-require('./db/database');
+const db = require('./db/database');
 
 const authRoute         = require('./routes/auth');
 const applicationsRoute = require('./routes/applications');
@@ -14,14 +14,26 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
+// Reflect whatever origin made the request (works for localhost dev, the Render
+// domain, a custom domain, previews, etc.) without needing a hardcoded allowlist.
+// Safe here because we use Bearer tokens, not cookies, for auth.
 app.use(cors({
-  origin: ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', 'null'],
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  origin: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Log every request so Render's Logs tab shows exactly what's happening.
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    console.log(`${req.method} ${req.originalUrl} -> ${res.statusCode} (${Date.now() - start}ms)`);
+  });
+  next();
+});
 
 // ── Serve frontend files ───────────────────────────────────────────────────────
 // Serve the HTML files from the parent directory (put your HTML files in katdesign-frontend/)
@@ -57,22 +69,38 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong on the server. Please try again.' });
 });
 
-// ── Start ──────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log('');
-  console.log('  ╔══════════════════════════════════════════╗');
-  console.log('  ║   KatDesign Holdings API  ·  Running     ║');
-  console.log(`  ║   http://localhost:${PORT}                 ║`);
-  console.log('  ╚══════════════════════════════════════════╝');
-  console.log('');
-  console.log('  Endpoints:');
-  console.log(`  GET  http://localhost:${PORT}/api/health`);
-  console.log(`  POST http://localhost:${PORT}/api/auth/login`);
-  console.log(`  GET  http://localhost:${PORT}/api/applications      (admin)`);
-  console.log(`  POST http://localhost:${PORT}/api/applications      (public)`);
-  console.log(`  GET  http://localhost:${PORT}/api/tracker/:omang    (public)`);
-  console.log(`  GET  http://localhost:${PORT}/api/dashboard         (admin)`);
-  console.log('');
+// Don't let an unexpected async error silently kill the whole process
+// (which would make every subsequent request fail with a connection error).
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection:', err);
 });
+
+// ── Start ──────────────────────────────────────────────────────────────────────
+// Wait for the database to finish creating tables / seeding before accepting
+// requests — otherwise a request that lands during startup can hit tables
+// that don't exist yet.
+db.ready
+  .then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log('');
+      console.log('  ╔══════════════════════════════════════════╗');
+      console.log('  ║   KatDesign Holdings API  ·  Running     ║');
+      console.log(`  ║   http://localhost:${PORT}                 ║`);
+      console.log('  ╚══════════════════════════════════════════╝');
+      console.log('');
+      console.log('  Endpoints:');
+      console.log(`  GET  http://localhost:${PORT}/api/health`);
+      console.log(`  POST http://localhost:${PORT}/api/auth/login`);
+      console.log(`  GET  http://localhost:${PORT}/api/applications      (admin)`);
+      console.log(`  POST http://localhost:${PORT}/api/applications      (public)`);
+      console.log(`  GET  http://localhost:${PORT}/api/tracker/:omang    (public)`);
+      console.log(`  GET  http://localhost:${PORT}/api/dashboard         (admin)`);
+      console.log('');
+    });
+  })
+  .catch((err) => {
+    console.error('Fatal: could not start server, database was not ready:', err);
+    process.exit(1);
+  });
 
 module.exports = app;
