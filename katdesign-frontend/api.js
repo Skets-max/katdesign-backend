@@ -1,7 +1,7 @@
 // KatDesign Holdings — Frontend API Client
 // Include this in every HTML page:  <script src="api.js"></script>
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = '/api';
 
 const KDH = {
 
