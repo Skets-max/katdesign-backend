@@ -1,7 +1,9 @@
 // KatDesign Holdings — Frontend API Client
 // Include this in every HTML page:  <script src="api.js"></script>
 
-const API_BASE = '/api';
+// Works automatically whether you're running locally, on your LAN, or deployed
+// (e.g. Railway) — it just uses whatever host the page was loaded from.
+const API_BASE = `${window.location.origin}/api`;
 
 const KDH = {
 
@@ -92,5 +94,25 @@ const KDH = {
   // ── Dashboard ──────────────────────────────────────────────────────────────
   async getDashboard() {
     return this.authFetch(`${API_BASE}/dashboard`);
+  },
+
+  // ── Contact messages ───────────────────────────────────────────────────────
+  async submitContactMessage(formData) {
+    const res = await fetch(`${API_BASE}/messages`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(formData)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not send message.');
+    return data;
+  },
+
+  async getMessages() {
+    return this.authFetch(`${API_BASE}/messages`);
+  },
+
+  async markMessageRead(id) {
+    return this.authFetch(`${API_BASE}/messages/${id}/read`, { method: 'PATCH' });
   }
 };
