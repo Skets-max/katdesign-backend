@@ -1,0 +1,50 @@
+====================================================
+  KatDesign Holdings — How To Run
+====================================================
+
+STEP 1: Open Command Prompt
+  - Press Windows key + R
+  - Type: cmd
+  - Press Enter
+
+STEP 2: Navigate to this folder
+  Type this exactly (change the path to where you saved it):
+
+  cd "Z:\KatDesign Holdings"
+
+  OR wherever you put this folder on your computer.
+
+STEP 3: Install packages (only needed ONCE)
+  npm install
+
+  Wait for it to finish. It will say "added X packages"
+
+STEP 4: Start the server
+  npm start
+
+  You should see:
+  ✓ Default admin created  → username: admin | password: admin123
+  ✓ Sample data seeded — 9 students, 9 loans
+  http://localhost:3000
+
+STEP 5: Open the website
+  Open your browser and go to:
+  http://localhost:3000
+
+  That's it! Your full website is live.
+
+====================================================
+  Admin Login
+====================================================
+  Go to: http://localhost:3000/login.html
+  Username: admin
+  Password: admin123
+
+====================================================
+  IMPORTANT
+====================================================
+  - Keep the Command Prompt window OPEN while using the site
+  - Closing it stops the server
+  - To stop: press Ctrl + C in the Command Prompt
+  - To start again: run "npm start" again
+

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KatDesign Holdings — Page Not Found</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #0d1117; --ink2: #3a4556; --ink3: #6b7a90;
+    --gold: #b08d57; --gold-light: #e8d5b0; --gold-dark: #7a6038;
+    --bg: #faf8f4; --bg2: #f2ede4; --white: #ffffff;
+    --border: rgba(176,141,87,0.22);
+    --shadow: 0 4px 32px rgba(13,17,23,0.09);
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 3rem;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+  .logo span { color: var(--gold); }
+
+  .page {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+
+  .container {
+    max-width: 520px;
+    width: 100%;
+    animation: fadeUp 0.5s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Big 404 */
+  .four-oh-four {
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.25rem;
+    opacity: 0.18;
+    user-select: none;
+  }
+
+  .icon-wrap {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(176,141,87,0.1);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -2.5rem auto 1.75rem;
+    font-size: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.025em;
+    margin-bottom: 0.875rem;
+  }
+  .title em { color: var(--gold); font-style: normal; }
+
+  .sub {
+    font-size: 0.95rem;
+    color: var(--ink3);
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Links card */
+  .links-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+  .links-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  .link-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.18s;
+    margin-bottom: 4px;
+  }
+  .link-item:last-child { margin-bottom: 0; }
+  .link-item:hover { background: rgba(176,141,87,0.07); }
+  .link-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: rgba(176,141,87,0.09);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .link-label { font-size: 0.875rem; font-weight: 500; color: var(--ink); }
+  .link-desc  { font-size: 0.75rem; color: var(--ink3); margin-top: 1px; }
+  .link-arrow { margin-left: auto; color: var(--gold); font-size: 1rem; opacity: 0.6; flex-shrink: 0; }
+
+  .btn-home {
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.9rem 2.2rem;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-home:hover { background: var(--gold-dark); transform: translateY(-1px); }
+
+  footer {
+    background: var(--ink);
+    padding: 1.5rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #fff; }
+  .footer-logo span { color: var(--gold); }
+  .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 1.25rem; }
+    .four-oh-four { font-size: 6rem; }
+    .title { font-size: 1.6rem; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">KatDesign <span>Holdings</span></a>
+</nav>
+
+<div class="page">
+  <div class="container">
+    <div class="four-oh-four">404</div>
+    <div class="icon-wrap">🔍</div>
+    <div class="title">Page <em>Not Found</em></div>
+    <p class="sub">The page you're looking for doesn't exist or may have been moved. Here are some helpful links to get you back on track.</p>
+
+    <div class="links-card">
+      <div class="links-title">Where would you like to go?</div>
+      <a class="link-item" href="index.html">
+        <div class="link-icon">🏠</div>
+        <div>
+          <div class="link-label">Homepage</div>
+          <div class="link-desc">Back to the KatDesign Holdings website</div>
+        </div>
+        <div class="link-arrow">→</div>
+      </a>
+      <a class="link-item" href="index.html#apply">
+        <div class="link-icon">📋</div>
+        <div>
+          <div class="link-label">Apply for a Loan</div>
+          <div class="link-desc">Submit a new student loan application</div>
+        </div>
+        <div class="link-arrow">→</div>
+      </a>
+      <a class="link-item" href="tracker.html">
+        <div class="link-icon">🔎</div>
+        <div>
+          <div class="link-label">Track Your Loan</div>
+          <div class="link-desc">Check the status of your existing application</div>
+        </div>
+        <div class="link-arrow">→</div>
+      </a>
+      <a class="link-item" href="index.html#contact">
+        <div class="link-icon">✉️</div>
+        <div>
+          <div class="link-label">Contact Us</div>
+          <div class="link-desc">Get in touch with our team for assistance</div>
+        </div>
+        <div class="link-arrow">→</div>
+      </a>
+    </div>
+
+    <a class="btn-home" href="index.html">← Back to Homepage</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">KatDesign <span>Holdings</span></div>
+  <div class="footer-copy">© 2026 KatDesign Holdings · Gaborone, Botswana</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KatDesign Holdings — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #0d1117;
+    --ink2: #3a4556;
+    --ink3: #6b7a90;
+    --gold: #b08d57;
+    --gold-light: #e8d5b0;
+    --gold-dark: #7a6038;
+    --gold-pale: rgba(176,141,87,0.09);
+    --bg: #faf8f4;
+    --bg2: #f2ede4;
+    --white: #ffffff;
+    --border: rgba(176,141,87,0.2);
+    --border-soft: rgba(176,141,87,0.12);
+    --green: #2d6e35;     --green-bg: #e8f4ea;   --green-border: rgba(45,110,53,0.2);
+    --red: #a32d2d;       --red-bg: #fcebeb;     --red-border: rgba(163,45,45,0.2);
+    --amber: #7a5c00;     --amber-bg: #fff8e6;   --amber-border: rgba(240,192,64,0.4);
+    --blue: #185fa5;      --blue-bg: #e6f1fb;    --blue-border: rgba(24,95,165,0.2);
+    --shadow: 0 2px 16px rgba(13,17,23,0.07);
+  }
+
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── LAYOUT SHELL ─── */
+  .app-shell {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    grid-template-rows: 1fr;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sb-logo {
+    padding: 1.4rem 1.3rem 1.1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+  }
+  .sb-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .sb-logo-text span { color: var(--gold); }
+  .sb-logo-sub {
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  .sb-section {
+    padding: 1.1rem 1rem 0.4rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .sb-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.6rem 1rem;
+    margin: 1px 0.6rem;
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.55);
+    font-size: 0.82rem;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .sb-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); }
+  .sb-item.active { background: rgba(176,141,87,0.18); color: var(--gold-light); }
+
+  .sb-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+
+  .sb-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 0.6rem;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .sb-badge.amber { background: #ba7517; }
+
+  .sb-footer {
+    margin-top: auto;
+    padding: 1rem 1.1rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+  }
+  .sb-user { display: flex; align-items: center; gap: 10px; }
+  .sb-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .sb-uname { font-size: 0.77rem; color: rgba(255,255,255,0.7); line-height: 1.2; }
+  .sb-urole { font-size: 0.63rem; color: rgba(255,255,255,0.3); }
+
+  /* ─── MAIN CONTENT ─── */
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ─── TOPBAR ─── */
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.75rem;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .tb-date { font-size: 0.75rem; color: var(--ink3); }
+
+  .tb-btn {
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .tb-btn:hover { background: var(--gold-dark); }
+
+  /* ─── VIEW PANELS ─── */
+  .view { display: none; padding: 1.75rem; animation: fadeUp 0.25s ease; }
+  .view.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: var(--ink);
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 1.1rem;
+    border-left: 3px solid var(--gold);
+  }
+  .toast.show { display: flex; }
+
+  /* ─── METRICS ─── */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .metrics.cols3 { grid-template-columns: repeat(3, 1fr); }
+  .metrics.cols2 { grid-template-columns: repeat(2, 1fr); }
+
+  .metric {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 1.1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    opacity: 0.4;
+  }
+  .metric-label {
+    font-size: 0.68rem;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 7px;
+  }
+  .metric-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .metric-sub { font-size: 0.7rem; margin-top: 6px; }
+  .metric-sub.up   { color: var(--green); }
+  .metric-sub.warn { color: var(--amber); }
+  .metric-sub.bad  { color: var(--red); }
+
+  /* ─── SECTION ROW ─── */
+  .section-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+  .section-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .filter-row { display: flex; gap: 6px; }
+  .filter-btn {
+    background: none;
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    padding: 4px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--ink2);
+    transition: all 0.15s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+  }
+
+  /* ─── SEARCH ─── */
+  .search-bar { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .search-bar input {
+    flex: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    padding: 8px 13px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--ink);
+    outline: none;
+    transition: border 0.2s;
+  }
+  .search-bar input:focus { border-color: var(--gold); }
+
+  /* ─── TABLE ─── */
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  thead { background: var(--bg2); }
+  th {
+    padding: 0.65rem 1rem;
+    text-align: left;
+    font-size: 0.65rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+    color: var(--ink2);
+    border-bottom: 1px solid rgba(176,141,87,0.07);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+  .td-name { color: var(--ink); font-weight: 500; font-size: 0.82rem; }
+  .td-sub  { color: var(--ink3); font-size: 0.71rem; margin-top: 1px; }
+
+  /* ─── PILLS ─── */
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .pill-pending   { background: var(--amber-bg);  color: var(--amber); border: 1px solid var(--amber-border); }
+  .pill-approved  { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-border); }
+  .pill-rejected  { background: var(--red-bg);    color: var(--red);   border: 1px solid var(--red-border); }
+  .pill-disbursed { background: var(--blue-bg);   color: var(--blue);  border: 1px solid var(--blue-border); }
+  .pill-overdue   { background: var(--red-bg);    color: var(--red);   border: 1px solid var(--red-border); }
+  .pill-collected { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-border); }
+  .pill-active    { background: var(--blue-bg);   color: var(--blue);  border: 1px solid var(--blue-border); }
+  .pill-clear     { background: var(--green-bg);  color: var(--green); border: 1px solid var(--green-border); }
+  .pill-failed    { background: var(--red-bg);    color: var(--red);   border: 1px solid var(--red-border); }
+  .pill-upcoming  { background: var(--blue-bg);   color: var(--blue);  border: 1px solid var(--blue-border); }
+  .pill-contacted { background: var(--amber-bg);  color: var(--amber); border: 1px solid var(--amber-border); }
+
+  /* ─── ACTION BUTTONS ─── */
+  .action-btn {
+    background: none;
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    padding: 3px 9px;
+    border-radius: 5px;
+    cursor: pointer;
+    color: var(--ink2);
+    margin-right: 4px;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .action-btn:hover          { border-color: var(--gold);  color: var(--gold); }
+  .action-btn.approve:hover  { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .action-btn.reject:hover   { background: var(--red-bg);   border-color: var(--red);   color: var(--red); }
+  .action-btn.disburse:hover { background: var(--blue-bg);  border-color: var(--blue);  color: var(--blue); }
+  .action-btn.collect:hover  { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .action-btn.flag:hover     { background: var(--red-bg);   border-color: var(--red);   color: var(--red); }
+
+  /* ─── TWO COLUMN ─── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; margin-top: 1.25rem; }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.35rem;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    font-weight: 500;
+    margin-bottom: 1.1rem;
+  }
+
+  /* Activity feed */
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(176,141,87,0.07);
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .act-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .act-dot.green  { background: var(--green); }
+  .act-dot.red    { background: var(--red); }
+  .act-dot.amber  { background: #ba7517; }
+  .act-dot.blue   { background: var(--blue); }
+  .act-text { font-size: 0.77rem; color: var(--ink2); line-height: 1.4; }
+  .act-time { font-size: 0.67rem; color: var(--ink3); margin-top: 2px; }
+
+  /* Institution bar chart */
+  .inst-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }
+  .inst-label { font-size: 0.77rem; color: var(--ink2); width: 80px; flex-shrink: 0; }
+  .inst-track { flex: 1; background: var(--bg2); border-radius: 4px; height: 8px; overflow: hidden; }
+  .inst-fill   { height: 100%; border-radius: 4px; background: var(--gold); transition: width 0.6s ease; }
+  .inst-count  { font-size: 0.72rem; color: var(--ink3); width: 20px; text-align: right; }
+
+  /* ─── DETAIL PANEL ─── */
+  .detail-panel {
+    display: none;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    margin-top: 1.1rem;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.2s ease;
+  }
+  .detail-panel.show { display: block; }
+  .detail-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .detail-panel-name { font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.875rem;
+    margin-bottom: 1.1rem;
+  }
+  .detail-field .d-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink3); margin-bottom: 2px; }
+  .detail-field .d-val   { font-size: 0.84rem; color: var(--ink); font-weight: 500; }
+  .detail-actions { display: flex; gap: 8px; padding-top: 1rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .det-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 7px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .det-approve  { background: var(--green-bg); color: var(--green); }
+  .det-reject   { background: var(--red-bg);   color: var(--red); }
+  .det-disburse { background: var(--blue-bg);  color: var(--blue); }
+  .det-close    { background: var(--bg2);      color: var(--ink2); }
+  .det-btn:hover { opacity: 0.8; transform: translateY(-1px); }
+
+  /* ─── OVERDUE COUNTER ─── */
+  .overdue-days { color: var(--red); font-weight: 500; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1000px) {
+    .app-shell { grid-template-columns: 180px 1fr; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .detail-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .app-shell { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-text">KatDesign <span>Holdings</span></div>
+      <div class="sb-logo-sub">Admin Portal</div>
+    </div>
+
+    <div class="sb-section">Main</div>
+    <div class="sb-item active" onclick="switchView('dashboard', this)">
+      <span class="sb-icon">◈</span> Dashboard
+    </div>
+    <div class="sb-item" onclick="switchView('applications', this)">
+      <span class="sb-icon">◻</span> Applications
+      <span class="sb-badge" id="pendingBadge">3</span>
+    </div>
+    <div class="sb-item" onclick="switchView('disbursed', this)">
+      <span class="sb-icon">◈</span> Disbursed Loans
+    </div>
+    <div class="sb-item" onclick="switchView('repayments', this)">
+      <span class="sb-icon">◻</span> Repayments
+      <span class="sb-badge amber" id="repayBadge">2</span>
+    </div>
+
+    <div class="sb-section">Manage</div>
+    <div class="sb-item" onclick="switchView('students', this)">
+      <span class="sb-icon">◻</span> Students
+    </div>
+    <div class="sb-item" onclick="switchView('overdue', this)">
+      <span class="sb-icon">⚠</span> Overdue
+      <span class="sb-badge" id="overdueBadge">2</span>
+    </div>
+
+    <div class="sb-item" onclick="doLogout()" style="margin-top:0"><span class="sb-icon">⎋</span> Logout</div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-avatar">KD</div>
+        <div>
+          <div class="sb-uname">KatDesign Admin</div>
+          <div class="sb-urole">Loan Officer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main-content">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="tb-date" id="todayDate"></div>
+        <button class="tb-btn" onclick="switchView('applications', document.querySelectorAll('.sb-item')[1])">+ New Application</button>
+      </div>
+    </div>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div id="view-dashboard" class="view active">
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Total Applications</div>
+          <div class="metric-val" id="m-total">18</div>
+          <div class="metric-sub up">+3 this week</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Loans Disbursed</div>
+          <div class="metric-val">P19,500</div>
+          <div class="metric-sub up">12 active loans</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Pending Approval</div>
+          <div class="metric-val" id="m-pending">3</div>
+          <div class="metric-sub warn">Within 72hrs</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Overdue Repayments</div>
+          <div class="metric-val" id="m-overdue">2</div>
+          <div class="metric-sub bad">Action needed</div>
+        </div>
+      </div>
+
+      <div class="section-row"><div class="section-label">Recent Applications</div></div>
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col style="width:22%"><col style="width:16%"><col style="width:12%">
+            <col style="width:12%"><col style="width:13%"><col style="width:25%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Student</th><th>Institution</th><th>Amount</th>
+              <th>Repayable</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="td-name">Keabetswe Moagi</div><div class="td-sub">ID: 123456789</div></td>
+              <td>UB</td><td>P1,200</td><td>P1,560</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td>
+                <button class="action-btn approve" onclick="quickAction(this,'approved')">Approve</button>
+                <button class="action-btn reject"  onclick="quickAction(this,'rejected')">Reject</button>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Tshepiso Kgosi</div><div class="td-sub">ID: 987654321</div></td>
+              <td>BAC</td><td>P800</td><td>P1,040</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td>
+                <button class="action-btn approve" onclick="quickAction(this,'approved')">Approve</button>
+                <button class="action-btn reject"  onclick="quickAction(this,'rejected')">Reject</button>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Neo Selato</div><div class="td-sub">ID: 456789123</div></td>
+              <td>Limkokwing</td><td>P500</td><td>P650</td>
+              <td><span class="pill pill-approved">Approved</span></td>
+              <td><button class="action-btn disburse" onclick="quickAction(this,'disbursed')">Disburse</button></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Mpho Ditsele</div><div class="td-sub">ID: 321654987</div></td>
+              <td>GUC</td><td>P1,500</td><td>P1,950</td>
+              <td><span class="pill pill-disbursed">Disbursed</span></td>
+              <td>
+                <button class="action-btn collect" onclick="quickAction(this,'collected')">Collected</button>
+                <button class="action-btn flag"    onclick="quickAction(this,'overdue')">Flag</button>
+              </td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Onalenna Tau</div><div class="td-sub">ID: 741852963</div></td>
+              <td>GIBS</td><td>P1,000</td><td>P1,300</td>
+              <td><span class="pill pill-overdue">Overdue</span></td>
+              <td><button class="action-btn flag" onclick="quickAction(this,'contacted')">Contact</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">Applications by Institution</div>
+          <div class="inst-bar"><div class="inst-label">UB</div><div class="inst-track"><div class="inst-fill" style="width:75%"></div></div><div class="inst-count">6</div></div>
+          <div class="inst-bar"><div class="inst-label">BAC</div><div class="inst-track"><div class="inst-fill" style="width:50%"></div></div><div class="inst-count">4</div></div>
+          <div class="inst-bar"><div class="inst-label">Limkokwing</div><div class="inst-track"><div class="inst-fill" style="width:37%"></div></div><div class="inst-count">3</div></div>
+          <div class="inst-bar"><div class="inst-label">GUC</div><div class="inst-track"><div class="inst-fill" style="width:25%"></div></div><div class="inst-count">2</div></div>
+          <div class="inst-bar"><div class="inst-label">GIBS</div><div class="inst-track"><div class="inst-fill" style="width:25%"></div></div><div class="inst-count">2</div></div>
+          <div class="inst-bar"><div class="inst-label">Other</div><div class="inst-track"><div class="inst-fill" style="width:12%"></div></div><div class="inst-count">1</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Activity</div>
+          <div class="activity-item"><div class="act-dot green"></div><div><div class="act-text">Neo Selato approved — P500 loan</div><div class="act-time">Today, 10:42 AM</div></div></div>
+          <div class="activity-item"><div class="act-dot blue"></div><div><div class="act-text">Mpho Ditsele disbursed — P1,500</div><div class="act-time">Today, 09:15 AM</div></div></div>
+          <div class="activity-item"><div class="act-dot amber"></div><div><div class="act-text">Keabetswe Moagi application received</div><div class="act-time">Yesterday, 3:30 PM</div></div></div>
+          <div class="activity-item"><div class="act-dot red"></div><div><div class="act-text">Onalenna Tau marked overdue</div><div class="act-time">Yesterday, 11:00 AM</div></div></div>
+          <div class="activity-item"><div class="act-dot green"></div><div><div class="act-text">Debit collected — Baruti Sento P1,300</div><div class="act-time">30 Apr, 08:00 AM</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ APPLICATIONS ══ -->
+    <div id="view-applications" class="view">
+      <div class="toast" id="appToast"></div>
+      <div class="search-bar">
+        <input type="text" placeholder="Search by name, ID or institution..." oninput="filterTable(this.value,'appTbody')">
+      </div>
+      <div class="section-row">
+        <div class="section-label">All Applications</div>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="filterStatus('all',this,'appTbody')">All</button>
+          <button class="filter-btn" onclick="filterStatus('pending',this,'appTbody')">Pending</button>
+          <button class="filter-btn" onclick="filterStatus('approved',this,'appTbody')">Approved</button>
+          <button class="filter-btn" onclick="filterStatus('rejected',this,'appTbody')">Rejected</button>
+          <button class="filter-btn" onclick="filterStatus('disbursed',this,'appTbody')">Disbursed</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col style="width:19%"><col style="width:14%"><col style="width:15%">
+            <col style="width:9%"><col style="width:10%"><col style="width:11%"><col style="width:22%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Student</th><th>Institution</th><th>Sponsoring Body</th>
+              <th>Amount</th><th>Repayable</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="appTbody">
+            <tr data-status="pending">
+              <td><div class="td-name">Keabetswe Moagi</div><div class="td-sub">ID: 123456789</div></td>
+              <td>UB</td><td>DPSM</td><td>P1,200</td><td>P1,560</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td>
+                <button class="action-btn approve"  onclick="appAction(this,'approved')">Approve</button>
+                <button class="action-btn reject"   onclick="appAction(this,'rejected')">Reject</button>
+                <button class="action-btn"          onclick="showDetail(this)">View</button>
+              </td>
+            </tr>
+            <tr data-status="pending">
+              <td><div class="td-name">Tshepiso Kgosi</div><div class="td-sub">ID: 987654321</div></td>
+              <td>BAC</td><td>HRDC</td><td>P800</td><td>P1,040</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td>
+                <button class="action-btn approve"  onclick="appAction(this,'approved')">Approve</button>
+                <button class="action-btn reject"   onclick="appAction(this,'rejected')">Reject</button>
+                <button class="action-btn"          onclick="showDetail(this)">View</button>
+              </td>
+            </tr>
+            <tr data-status="pending">
+              <td><div class="td-name">Lesedi Mmolawa</div><div class="td-sub">ID: 654987321</div></td>
+              <td>GIBS</td><td>BOTA</td><td>P1,500</td><td>P1,950</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+              <td>
+                <button class="action-btn approve"  onclick="appAction(this,'approved')">Approve</button>
+                <button class="action-btn reject"   onclick="appAction(this,'rejected')">Reject</button>
+                <button class="action-btn"          onclick="showDetail(this)">View</button>
+              </td>
+            </tr>
+            <tr data-status="approved">
+              <td><div class="td-name">Neo Selato</div><div class="td-sub">ID: 456789123</div></td>
+              <td>Limkokwing</td><td>DPSM</td><td>P500</td><td>P650</td>
+              <td><span class="pill pill-approved">Approved</span></td>
+              <td>
+                <button class="action-btn disburse" onclick="appAction(this,'disbursed')">Disburse</button>
+                <button class="action-btn"          onclick="showDetail(this)">View</button>
+              </td>
+            </tr>
+            <tr data-status="disbursed">
+              <td><div class="td-name">Mpho Ditsele</div><div class="td-sub">ID: 321654987</div></td>
+              <td>GUC</td><td>HRDC</td><td>P1,500</td><td>P1,950</td>
+              <td><span class="pill pill-disbursed">Disbursed</span></td>
+              <td>
+                <button class="action-btn collect"  onclick="appAction(this,'collected')">Collected</button>
+                <button class="action-btn"          onclick="showDetail(this)">View</button>
+              </td>
+            </tr>
+            <tr data-status="rejected">
+              <td><div class="td-name">Boitumelo Gaone</div><div class="td-sub">ID: 159357486</div></td>
+              <td>UB</td><td>HRDC</td><td>P900</td><td>P1,170</td>
+              <td><span class="pill pill-rejected">Rejected</span></td>
+              <td><button class="action-btn" onclick="showDetail(this)">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Detail panel -->
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-panel-header">
+          <div class="detail-panel-name" id="detName">Student Details</div>
+          <span class="pill pill-pending" id="detStatus">Pending</span>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-field"><div class="d-label">Full Name</div><div class="d-val" id="d1">—</div></div>
+          <div class="detail-field"><div class="d-label">Institution</div><div class="d-val" id="d2">—</div></div>
+          <div class="detail-field"><div class="d-label">Sponsoring Body</div><div class="d-val" id="d3">—</div></div>
+          <div class="detail-field"><div class="d-label">Loan Amount</div><div class="d-val" id="d4">—</div></div>
+          <div class="detail-field"><div class="d-label">Total Repayable</div><div class="d-val" id="d5">—</div></div>
+          <div class="detail-field"><div class="d-label">Bank</div><div class="d-val">FNB Botswana</div></div>
+          <div class="detail-field"><div class="d-label">Account Type</div><div class="d-val">Savings</div></div>
+          <div class="detail-field"><div class="d-label">Debit Mandate</div><div class="d-val" style="color:var(--green)">Signed ✓</div></div>
+          <div class="detail-field"><div class="d-label">Application Date</div><div class="d-val">2 May 2026</div></div>
+        </div>
+        <div class="detail-actions">
+          <button class="det-btn det-approve"  onclick="detAction('approved')">Approve</button>
+          <button class="det-btn det-reject"   onclick="detAction('rejected')">Reject</button>
+          <button class="det-btn det-disburse" onclick="detAction('disbursed')">Mark Disbursed</button>
+          <button class="det-btn det-close"    onclick="document.getElementById('detailPanel').classList.remove('show')">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DISBURSED ══ -->
+    <div id="view-disbursed" class="view">
+      <div class="metrics cols3">
+        <div class="metric"><div class="metric-label">Total Disbursed</div><div class="metric-val">P19,500</div><div class="metric-sub up">12 loans active</div></div>
+        <div class="metric"><div class="metric-label">Total Expected Back</div><div class="metric-val">P25,350</div><div class="metric-sub up">Principal + 30%</div></div>
+        <div class="metric"><div class="metric-label">Collected So Far</div><div class="metric-val">P11,700</div><div class="metric-sub up">9 repaid</div></div>
+      </div>
+      <div class="section-row"><div class="section-label">Disbursed Loans</div></div>
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col style="width:21%"><col style="width:13%"><col style="width:11%">
+            <col style="width:11%"><col style="width:13%"><col style="width:14%"><col style="width:17%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Student</th><th>Bank</th><th>Disbursed</th>
+              <th>Repayable</th><th>Due Date</th><th>Status</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="td-name">Mpho Ditsele</div><div class="td-sub">GUC</div></td>
+              <td>FNB</td><td>P1,500</td><td>P1,950</td><td>2 Jun 2026</td>
+              <td><span class="pill pill-active">Active</span></td>
+              <td><button class="action-btn collect" onclick="quickAction(this,'collected')">Mark Collected</button></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Baruti Sento</div><div class="td-sub">UB</div></td>
+              <td>Stanbic</td><td>P1,000</td><td>P1,300</td><td>1 May 2026</td>
+              <td><span class="pill pill-collected">Collected</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Onalenna Tau</div><div class="td-sub">GIBS</div></td>
+              <td>ABSA</td><td>P1,000</td><td>P1,300</td><td>25 Apr 2026</td>
+              <td><span class="pill pill-overdue">Overdue</span></td>
+              <td><button class="action-btn flag" onclick="quickAction(this,'contacted')">Contact</button></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Dineo Kgatlhe</div><div class="td-sub">BAC</div></td>
+              <td>BancABC</td><td>P700</td><td>P910</td><td>28 Apr 2026</td>
+              <td><span class="pill pill-overdue">Overdue</span></td>
+              <td><button class="action-btn flag" onclick="quickAction(this,'contacted')">Contact</button></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Neo Selato</div><div class="td-sub">Limkokwing</div></td>
+              <td>FNB</td><td>P500</td><td>P650</td><td>3 Jun 2026</td>
+              <td><span class="pill pill-active">Active</span></td>
+              <td><button class="action-btn collect" onclick="quickAction(this,'collected')">Mark Collected</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ REPAYMENTS ══ -->
+    <div id="view-repayments" class="view">
+      <div class="section-row">
+        <div class="section-label">Repayment Tracker</div>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="filterStatus('all',this,'repayTbody')">All</button>
+          <button class="filter-btn" onclick="filterStatus('upcoming',this,'repayTbody')">Upcoming</button>
+          <button class="filter-btn" onclick="filterStatus('collected',this,'repayTbody')">Collected</button>
+          <button class="filter-btn" onclick="filterStatus('overdue',this,'repayTbody')">Overdue</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col style="width:21%"><col style="width:13%"><col style="width:12%">
+            <col style="width:13%"><col style="width:13%"><col style="width:13%"><col style="width:15%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Student</th><th>Bank</th><th>Amount Due</th>
+              <th>Due Date</th><th>Debit Order</th><th>Status</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="repayTbody">
+            <tr data-status="upcoming">
+              <td><div class="td-name">Mpho Ditsele</div><div class="td-sub">GUC</div></td>
+              <td>FNB</td><td>P1,950</td><td>2 Jun 2026</td>
+              <td><span class="pill pill-upcoming">Scheduled</span></td>
+              <td><span class="pill pill-upcoming">Upcoming</span></td><td>—</td>
+            </tr>
+            <tr data-status="upcoming">
+              <td><div class="td-name">Neo Selato</div><div class="td-sub">Limkokwing</div></td>
+              <td>FNB</td><td>P650</td><td>3 Jun 2026</td>
+              <td><span class="pill pill-upcoming">Scheduled</span></td>
+              <td><span class="pill pill-upcoming">Upcoming</span></td><td>—</td>
+            </tr>
+            <tr data-status="collected">
+              <td><div class="td-name">Baruti Sento</div><div class="td-sub">UB</div></td>
+              <td>Stanbic</td><td>P1,300</td><td>1 May 2026</td>
+              <td><span class="pill pill-collected">Auto</span></td>
+              <td><span class="pill pill-collected">Collected</span></td><td>—</td>
+            </tr>
+            <tr data-status="overdue">
+              <td><div class="td-name">Onalenna Tau</div><div class="td-sub">GIBS</div></td>
+              <td>ABSA</td><td>P1,300</td><td>25 Apr 2026</td>
+              <td><span class="pill pill-failed">Failed</span></td>
+              <td><span class="pill pill-overdue">Overdue</span></td>
+              <td><button class="action-btn flag" onclick="quickAction(this,'contacted')">Contact</button></td>
+            </tr>
+            <tr data-status="overdue">
+              <td><div class="td-name">Dineo Kgatlhe</div><div class="td-sub">BAC</div></td>
+              <td>BancABC</td><td>P910</td><td>28 Apr 2026</td>
+              <td><span class="pill pill-failed">Failed</span></td>
+              <td><span class="pill pill-overdue">Overdue</span></td>
+              <td><button class="action-btn flag" onclick="quickAction(this,'contacted')">Contact</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ STUDENTS ══ -->
+    <div id="view-students" class="view">
+      <div class="search-bar">
+        <input type="text" placeholder="Search students by name or ID..." oninput="filterTable(this.value,'studentTbody')">
+      </div>
+      <div class="section-row"><div class="section-label">All Students</div></div>
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col style="width:22%"><col style="width:16%"><col style="width:13%">
+            <col style="width:11%"><col style="width:13%"><col style="width:13%"><col style="width:12%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Student</th><th>Institution</th><th>Sponsorship</th>
+              <th>Loans</th><th>Total Borrowed</th><th>Outstanding</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="studentTbody">
+            <tr>
+              <td><div class="td-name">Keabetswe Moagi</div><div class="td-sub">ID: 123456789</div></td>
+              <td>UB</td><td>DPSM</td><td>1</td><td>P1,200</td><td>P1,560</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Mpho Ditsele</div><div class="td-sub">ID: 321654987</div></td>
+              <td>GUC</td><td>HRDC</td><td>2</td><td>P2,800</td><td>P1,950</td>
+              <td><span class="pill pill-active">Active</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Onalenna Tau</div><div class="td-sub">ID: 741852963</div></td>
+              <td>GIBS</td><td>DPSM</td><td>1</td><td>P1,000</td><td>P1,300</td>
+              <td><span class="pill pill-overdue">Overdue</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Baruti Sento</div><div class="td-sub">ID: 963741852</div></td>
+              <td>UB</td><td>BOTA</td><td>3</td><td>P3,500</td><td>P0</td>
+              <td><span class="pill pill-clear">Clear</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Dineo Kgatlhe</div><div class="td-sub">ID: 852963741</div></td>
+              <td>BAC</td><td>HRDC</td><td>1</td><td>P700</td><td>P910</td>
+              <td><span class="pill pill-overdue">Overdue</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Neo Selato</div><div class="td-sub">ID: 456789123</div></td>
+              <td>Limkokwing</td><td>DPSM</td><td>1</td><td>P500</td><td>P650</td>
+              <td><span class="pill pill-active">Active</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Tshepiso Kgosi</div><div class="td-sub">ID: 987654321</div></td>
+              <td>BAC</td><td>HRDC</td><td>1</td><td>P800</td><td>P1,040</td>
+              <td><span class="pill pill-pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Boitumelo Gaone</div><div class="td-sub">ID: 159357486</div></td>
+              <td>UB</td><td>HRDC</td><td>1</td><td>P0</td><td>P0</td>
+              <td><span class="pill pill-rejected">Rejected</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ OVERDUE ══ -->
+    <div id="view-overdue" class="view">
+      <div class="metrics cols2">
+        <div class="metric">
+          <div class="metric-label">Overdue Accounts</div>
+          <div class="metric-val">2</div>
+          <div class="metric-sub bad">Immediate action required</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total Overdue Amount</div>
+          <div class="metric-val">P2,210</div>
+          <div class="metric-sub bad">Failed debit orders</div>
+        </div>
+      </div>
+      <div class="section-row"><div class="section-label">Overdue Accounts</div></div>
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col style="width:22%"><col style="width:13%"><col style="width:11%">
+            <col style="width:13%"><col style="width:13%"><col style="width:13%"><col style="width:15%">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Student</th><th>Bank</th><th>Amount Due</th>
+              <th>Due Date</th><th>Days Overdue</th><th>Debit</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="td-name">Onalenna Tau</div><div class="td-sub">GIBS · ID: 741852963</div></td>
+              <td>ABSA</td><td>P1,300</td><td>25 Apr 2026</td>
+              <td class="overdue-days">7 days</td>
+              <td><span class="pill pill-failed">Failed</span></td>
+              <td><button class="action-btn flag" onclick="quickAction(this,'contacted')">Contact</button></td>
+            </tr>
+            <tr>
+              <td><div class="td-name">Dineo Kgatlhe</div><div class="td-sub">BAC · ID: 852963741</div></td>
+              <td>BancABC</td><td>P910</td><td>28 Apr 2026</td>
+              <td class="overdue-days">4 days</td>
+              <td><span class="pill pill-failed">Failed</span></td>
+              <td><button class="action-btn flag" onclick="quickAction(this,'contacted')">Contact</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app-shell -->
+
+<script>
+  /* ── Page title map ── */
+  var titles = {
+    dashboard:    'Dashboard',
+    applications: 'Applications',
+    disbursed:    'Disbursed Loans',
+    repayments:   'Repayments',
+    students:     'Students',
+    overdue:      'Overdue Accounts'
+  };
+
+  /* ── Switch view ── */
+  function switchView(id, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(s => s.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('topbarTitle').textContent = titles[id] || id;
+    // close any open detail panel
+    var dp = document.getElementById('detailPanel');
+    if (dp) dp.classList.remove('show');
+  }
+
+  /* ── Quick status update ── */
+  var statusMap = {
+    approved:  ['pill-approved',  'Approved'],
+    rejected:  ['pill-rejected',  'Rejected'],
+    disbursed: ['pill-disbursed', 'Disbursed'],
+    collected: ['pill-collected', 'Collected'],
+    overdue:   ['pill-overdue',   'Overdue'],
+    contacted: ['pill-contacted', 'Contacted'],
+  };
+
+  function quickAction(btn, status) {
+    var row  = btn.closest('tr');
+    var pill = row.querySelector('.pill');
+    var info = statusMap[status];
+    if (!info) return;
+    pill.className = 'pill ' + info[0];
+    pill.textContent = info[1];
+    var td = row.querySelector('td:last-child');
+    td.innerHTML = '<span style="font-size:0.72rem;color:var(--ink3)">Updated ✓</span>';
+  }
+
+  function appAction(btn, status) {
+    quickAction(btn, status);
+    showToast('Status updated to "' + status + '" successfully.');
+    var row = btn.closest('tr');
+    if (row) row.dataset.status = status;
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('appToast');
+    if (!t) return;
+    t.textContent = '✓  ' + msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  /* ── Show student detail panel ── */
+  function showDetail(btn) {
+    var row   = btn.closest('tr');
+    var cells = row.querySelectorAll('td');
+    document.getElementById('d1').textContent = cells[0].querySelector('.td-name').textContent;
+    document.getElementById('d2').textContent = cells[1].textContent.trim();
+    document.getElementById('d3').textContent = cells[2].textContent.trim();
+    document.getElementById('d4').textContent = cells[3].textContent.trim();
+    document.getElementById('d5').textContent = cells[4].textContent.trim();
+    document.getElementById('detName').textContent = cells[0].querySelector('.td-name').textContent;
+    var srcPill = cells[5].querySelector('.pill');
+    var dp = document.getElementById('detStatus');
+    dp.className = srcPill.className;
+    dp.textContent = srcPill.textContent;
+    document.getElementById('detailPanel').classList.add('show');
+    document.getElementById('detailPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function detAction(status) {
+    document.getElementById('detailPanel').classList.remove('show');
+    showToast('Application ' + status + ' successfully.');
+  }
+
+  /* ── Filter by status ── */
+  function filterStatus(status, btn, tbodyId) {
+    var parent = btn.closest('.filter-row');
+    parent.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#' + tbodyId + ' tr').forEach(row => {
+      row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+    });
+  }
+
+  /* ── Search filter ── */
+  function filterTable(val, tbodyId) {
+    var v = val.toLowerCase();
+    document.querySelectorAll('#' + tbodyId + ' tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(v) ? '' : 'none';
+    });
+  }
+
+  /* ── Set today's date ── */
+  (function() {
+    var d = new Date();
+    var opts = { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('todayDate').textContent = d.toLocaleDateString('en-GB', opts);
+  })();
+</script>
+<script src="api.js"></script>
+<script>
+  // ── Auth guard ────────────────────────────────────────────────────────────
+  if (!KDH.getToken()) window.location.href = 'login.html';
+
+  var admin = KDH.getAdmin();
+  if (admin) {
+    document.querySelector('.sb-uname').textContent = admin.full_name || admin.username;
+  }
+
+  function doLogout() { KDH.logout(); }
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  var titles = {
+    dashboard:'Dashboard', applications:'Applications', disbursed:'Disbursed Loans',
+    repayments:'Repayments', students:'Students', overdue:'Overdue Accounts'
+  };
+
+  function switchView(id, el) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(s => s.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    if (el) el.classList.add('active');
+    document.getElementById('topbarTitle').textContent = titles[id] || id;
+    var dp = document.getElementById('detailPanel');
+    if (dp) dp.classList.remove('show');
+    // Load data for the view
+    if (id === 'dashboard')    loadDashboard();
+    if (id === 'applications') loadApplications();
+    if (id === 'disbursed')    loadApplications('disbursed');
+    if (id === 'repayments')   loadApplications('disbursed,overdue,collected');
+    if (id === 'students')     loadStudents();
+    if (id === 'overdue')      loadApplications('overdue');
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function showToast(msg, type) {
+    var t = document.getElementById('appToast');
+    if (!t) return;
+    t.textContent = '✓  ' + msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ── Status pill helper ────────────────────────────────────────────────────
+  var STATUS_PILLS = {
+    pending:   ['pill-pending',   'Pending'],
+    approved:  ['pill-approved',  'Approved'],
+    rejected:  ['pill-rejected',  'Rejected'],
+    disbursed: ['pill-disbursed', 'Disbursed'],
+    overdue:   ['pill-overdue',   'Overdue'],
+    collected: ['pill-collected', 'Collected'],
+    active:    ['pill-active',    'Active'],
+    clear:     ['pill-clear',     'Clear'],
+  };
+
+  function pillHtml(status) {
+    var p = STATUS_PILLS[status] || ['pill-pending', status];
+    return '<span class="pill ' + p[0] + '">' + p[1] + '</span>';
+  }
+
+  function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  function fmtMoney(n) { return n ? 'P' + parseFloat(n).toLocaleString() : '—'; }
+
+  // ── DASHBOARD ─────────────────────────────────────────────────────────────
+  async function loadDashboard() {
+    try {
+      var data = await KDH.getDashboard();
+      var m = data.metrics;
+
+      document.getElementById('m-total').textContent   = m.total_applications;
+      document.getElementById('m-pending').textContent = m.pending;
+      document.getElementById('m-overdue').textContent = m.overdue;
+
+      // Update metric cards dynamically
+      var cards = document.querySelectorAll('#view-dashboard .metric');
+      if (cards[1]) cards[1].querySelector('.metric-val').textContent = fmtMoney(m.total_disbursed);
+      if (cards[2]) cards[2].querySelector('.metric-val').textContent = m.pending;
+      if (cards[3]) cards[3].querySelector('.metric-val').textContent = m.overdue;
+
+      // Institution bars
+      var barHtml = '';
+      var max = data.by_institution[0] ? data.by_institution[0].count : 1;
+      data.by_institution.forEach(function(row) {
+        var pct = Math.round((row.count / max) * 100);
+        var name = row.institution.replace('University of Botswana (UB)','UB')
+                      .replace('Botswana Accountancy College (BAC)','BAC')
+                      .replace('GIBS Botswana','GIBS')
+                      .replace('Limkokwing University of Creative Technology','Limkokwing')
+                      .replace('Gaborone University College (GUC)','GUC');
+        barHtml += '<div class="inst-bar"><div class="inst-label">' + name + '</div>' +
+          '<div class="inst-track"><div class="inst-fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="inst-count">' + row.count + '</div></div>';
+      });
+      var barContainer = document.querySelector('#view-dashboard .card:first-child');
+      if (barContainer) barContainer.innerHTML = '<div class="card-title">Applications by Institution</div>' + barHtml;
+
+      // Activity feed
+      var actHtml = '';
+      var dotColors = { application_submitted:'amber', status_changed_to_approved:'green', status_changed_to_disbursed:'blue', status_changed_to_collected:'green', status_changed_to_rejected:'red', status_changed_to_overdue:'red' };
+      data.recent_activity.forEach(function(a) {
+        var color = dotColors[a.action] || 'amber';
+        var label = a.action.replace(/_/g,' ').replace('status changed to ','').replace('application submitted','application received');
+        actHtml += '<div class="activity-item"><div class="act-dot ' + color + '"></div><div>' +
+          '<div class="act-text">' + a.student_name + ' — ' + label + '</div>' +
+          '<div class="act-time">' + fmtDate(a.created_at) + '</div></div></div>';
+      });
+      var actContainer = document.querySelector('#view-dashboard .two-col .card:last-child');
+      if (actContainer) actContainer.innerHTML = '<div class="card-title">Recent Activity</div>' + (actHtml || '<div class="act-text" style="color:var(--ink3)">No activity yet.</div>');
+
+      // Recent applications table
+      var recent = await KDH.getApplications({ status: '' });
+      var tbody = document.querySelector('#view-dashboard tbody');
+      if (tbody && recent.loans) {
+        tbody.innerHTML = recent.loans.slice(0,5).map(function(l) {
+          var actions = '';
+          if (l.status === 'pending')   actions = '<button class="action-btn approve" onclick="changeStatus(' + l.id + ','approved',this)">Approve</button><button class="action-btn reject" onclick="changeStatus(' + l.id + ','rejected',this)">Reject</button>';
+          if (l.status === 'approved')  actions = '<button class="action-btn disburse" onclick="changeStatus(' + l.id + ','disbursed',this)">Disburse</button>';
+          if (l.status === 'disbursed') actions = '<button class="action-btn collect" onclick="changeStatus(' + l.id + ','collected',this)">Collected</button><button class="action-btn flag" onclick="changeStatus(' + l.id + ','overdue',this)">Flag</button>';
+          if (l.status === 'overdue')   actions = '<button class="action-btn flag" onclick="changeStatus(' + l.id + ','overdue',this)">Contact</button>';
+          return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">ID: ' + l.omang + '</div></td>' +
+            '<td>' + (l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0]) + '</td>' +
+            '<td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
+            '<td>' + pillHtml(l.status) + '</td><td>' + actions + '</td></tr>';
+        }).join('');
+      }
+    } catch(e) { console.error('Dashboard load error:', e); }
+  }
+
+  // ── APPLICATIONS TABLE ────────────────────────────────────────────────────
+  var currentFilter = 'all';
+  var allLoans = [];
+
+  async function loadApplications(statusFilter) {
+    try {
+      var params = {};
+      if (statusFilter && statusFilter !== 'all') params.status = statusFilter;
+      var data = await KDH.getApplications(params);
+      allLoans = data.loans || [];
+      renderApplicationsTable(allLoans);
+      renderDisbursedTable(allLoans);
+      renderRepaymentsTable(allLoans);
+      renderOverdueTable(allLoans);
+    } catch(e) { console.error('Load apps error:', e); }
+  }
+
+  function renderApplicationsTable(loans) {
+    var tbody = document.getElementById('appTbody');
+    if (!tbody) return;
+    tbody.innerHTML = loans.map(function(l) {
+      var actions = '';
+      if (l.status === 'pending')   actions = '<button class="action-btn approve" onclick="changeStatus(' + l.id + ','approved',this)">Approve</button><button class="action-btn reject" onclick="changeStatus(' + l.id + ','rejected',this)">Reject</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
+      if (l.status === 'approved')  actions = '<button class="action-btn disburse" onclick="changeStatus(' + l.id + ','disbursed',this)">Disburse</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
+      if (l.status === 'disbursed') actions = '<button class="action-btn collect" onclick="changeStatus(' + l.id + ','collected',this)">Collected</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
+      if (l.status === 'rejected' || l.status === 'collected' || l.status === 'overdue') actions = '<button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
+      var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
+      return '<tr data-status="' + l.status + '">' +
+        '<td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">ID: ' + l.omang + '</div></td>' +
+        '<td>' + inst + '</td><td>' + l.sponsoring_body + '</td>' +
+        '<td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
+        '<td>' + pillHtml(l.status) + '</td><td>' + actions + '</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:1.5rem">No applications found.</td></tr>';
+  }
+
+  function renderDisbursedTable(loans) {
+    var tbody = document.querySelector('#view-disbursed tbody');
+    if (!tbody) return;
+    var filtered = loans.filter(l => ['disbursed','overdue','collected'].includes(l.status));
+    tbody.innerHTML = filtered.map(function(l) {
+      var action = l.status === 'disbursed' ? '<button class="action-btn collect" onclick="changeStatus(' + l.id + ','collected',this)">Mark Collected</button>' :
+                   l.status === 'overdue'   ? '<button class="action-btn flag" onclick="changeStatus(' + l.id + ','overdue',this)">Contact</button>' : '—';
+      var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
+      return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">' + inst + '</div></td>' +
+        '<td>' + (l.bank_name||'—') + '</td><td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
+        '<td>' + fmtDate(l.due_date) + '</td><td>' + pillHtml(l.status==='collected'?'collected':l.status==='overdue'?'overdue':'active') + '</td><td>' + action + '</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:1.5rem">No disbursed loans yet.</td></tr>';
+  }
+
+  function renderRepaymentsTable(loans) {
+    var tbody = document.getElementById('repayTbody');
+    if (!tbody) return;
+    var filtered = loans.filter(l => ['disbursed','overdue','collected'].includes(l.status));
+    tbody.innerHTML = filtered.map(function(l) {
+      var debitStatus = l.status === 'collected' ? '<span class="pill pill-collected">Auto</span>' : l.status === 'overdue' ? '<span class="pill pill-failed">Failed</span>' : '<span class="pill pill-upcoming">Scheduled</span>';
+      var action = l.status === 'overdue' ? '<button class="action-btn flag" onclick="changeStatus(' + l.id + ','overdue',this)">Contact</button>' : '—';
+      var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
+      return '<tr data-status="' + l.status + '">' +
+        '<td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">' + inst + '</div></td>' +
+        '<td>' + (l.bank_name||'—') + '</td><td>' + fmtMoney(l.repayable) + '</td><td>' + fmtDate(l.due_date) + '</td>' +
+        '<td>' + debitStatus + '</td><td>' + pillHtml(l.status==='collected'?'collected':l.status==='overdue'?'overdue':'upcoming') + '</td><td>' + action + '</td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:1.5rem">No repayments yet.</td></tr>';
+  }
+
+  function renderOverdueTable(loans) {
+    var tbody = document.querySelector('#view-overdue tbody');
+    if (!tbody) return;
+    var filtered = loans.filter(l => l.status === 'overdue');
+    tbody.innerHTML = filtered.map(function(l) {
+      var days = l.due_date ? Math.abs(Math.ceil((new Date(l.due_date)-new Date())/(1000*60*60*24))) : '?';
+      var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
+      return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">' + inst + ' · ID: ' + l.omang + '</div></td>' +
+        '<td>' + (l.bank_name||'—') + '</td><td>' + fmtMoney(l.repayable) + '</td><td>' + fmtDate(l.due_date) + '</td>' +
+        '<td class="overdue-days">' + days + ' days</td><td><span class="pill pill-failed">Failed</span></td>' +
+        '<td><button class="action-btn flag">Contact</button></td></tr>';
+    }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:1.5rem">No overdue accounts.</td></tr>';
+  }
+
+  async function loadStudents() {
+    try {
+      var data = await KDH.getApplications();
+      var tbody = document.getElementById('studentTbody');
+      if (!tbody) return;
+      tbody.innerHTML = data.loans.map(function(l) {
+        var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
+        return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">ID: ' + l.omang + '</div></td>' +
+          '<td>' + inst + '</td><td>' + l.sponsoring_body + '</td><td>1</td>' +
+          '<td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
+          '<td>' + pillHtml(l.status) + '</td></tr>';
+      }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3)">No students yet.</td></tr>';
+    } catch(e) { console.error(e); }
+  }
+
+  // ── Status change action ──────────────────────────────────────────────────
+  async function changeStatus(id, status, btn) {
+    try {
+      await KDH.updateStatus(id, status);
+      showToast('Status updated to "' + status + '"');
+      // Reload current view
+      loadDashboard();
+      loadApplications();
+    } catch(e) {
+      alert(e.message || 'Failed to update status.');
+    }
+  }
+
+  // ── Detail panel ──────────────────────────────────────────────────────────
+  async function showDetail(id) {
+    try {
+      var data = await KDH.getApplication(id);
+      var l = data.loan;
+      document.getElementById('d1').textContent = l.first_name + ' ' + l.last_name;
+      document.getElementById('d2').textContent = l.institution;
+      document.getElementById('d3').textContent = l.sponsoring_body;
+      document.getElementById('d4').textContent = fmtMoney(l.amount);
+      document.getElementById('d5').textContent = fmtMoney(l.repayable);
+      document.getElementById('detName').textContent = l.first_name + ' ' + l.last_name;
+      var dp = document.getElementById('detStatus');
+      var p  = STATUS_PILLS[l.status] || STATUS_PILLS.pending;
+      dp.className  = 'pill ' + p[0];
+      dp.textContent = p[1];
+      // Store id for action buttons
+      document.getElementById('detailPanel').dataset.loanId = id;
+      document.getElementById('detailPanel').classList.add('show');
+      document.getElementById('detailPanel').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    } catch(e) { alert('Could not load details.'); }
+  }
+
+  function detAction(status) {
+    var id = document.getElementById('detailPanel').dataset.loanId;
+    if (id) changeStatus(parseInt(id), status, null);
+    document.getElementById('detailPanel').classList.remove('show');
+  }
+
+  // ── Filter + search ───────────────────────────────────────────────────────
+  function filterStatus(status, btn, tbodyId) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = status;
+    document.querySelectorAll('#' + tbodyId + ' tr').forEach(row => {
+      row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+    });
+  }
+
+  function filterTable(val, tbodyId) {
+    var v = val.toLowerCase();
+    document.querySelectorAll('#' + tbodyId + ' tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(v) ? '' : 'none';
+    });
+  }
+
+  // ── Date ─────────────────────────────────────────────────────────────────
+  (function() {
+    var d = new Date();
+    document.getElementById('todayDate').textContent = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'long', year:'numeric' });
+  })();
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
+  loadDashboard();
+  loadApplications();
+</script>
+</body>
+</html>

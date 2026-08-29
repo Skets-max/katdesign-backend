@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KatDesign Holdings — Check Your Loan Status</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #0d1117;
+    --ink2: #3a4556;
+    --ink3: #6b7a90;
+    --gold: #b08d57;
+    --gold-light: #e8d5b0;
+    --gold-dark: #7a6038;
+    --gold-pale: rgba(176,141,87,0.09);
+    --bg: #faf8f4;
+    --bg2: #f2ede4;
+    --white: #ffffff;
+    --border: rgba(176,141,87,0.22);
+    --border-soft: rgba(176,141,87,0.12);
+    --green: #2d6e35;   --green-bg: #e8f4ea;  --green-border: rgba(45,110,53,0.2);
+    --red: #a32d2d;     --red-bg: #fcebeb;    --red-border: rgba(163,45,45,0.2);
+    --amber: #7a5c00;   --amber-bg: #fff8e6;  --amber-border: rgba(240,192,64,0.4);
+    --blue: #185fa5;    --blue-bg: #e6f1fb;   --blue-border: rgba(24,95,165,0.2);
+    --shadow: 0 4px 32px rgba(13,17,23,0.09);
+    --shadow-sm: 0 2px 12px rgba(13,17,23,0.06);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 3rem;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .logo span { color: var(--gold); }
+  .nav-back {
+    font-size: 0.82rem;
+    color: var(--ink3);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--gold); }
+
+  /* ── PAGE ── */
+  .page {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 5rem;
+  }
+
+  /* ── LOOKUP SECTION ── */
+  .lookup-header { text-align: center; margin-bottom: 2.5rem; }
+  .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .eyebrow::before, .eyebrow::after {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+  .lookup-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin-bottom: 0.875rem;
+  }
+  .lookup-title em { color: var(--gold); font-style: normal; }
+  .lookup-sub {
+    font-size: 0.95rem;
+    color: var(--ink3);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* ── SEARCH CARD ── */
+  .search-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .search-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  }
+
+  .input-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 0.25rem;
+  }
+  .input-group input {
+    flex: 1;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    padding: 0.8rem 1.1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--ink);
+    background: var(--bg);
+    outline: none;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .input-group input:focus {
+    border-color: var(--gold);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(176,141,87,0.12);
+  }
+  .input-group input::placeholder { color: var(--ink3); letter-spacing: 0; }
+
+  .lookup-btn {
+    background: var(--gold);
+    color: var(--white);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.8rem 1.6rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .lookup-btn:hover { background: var(--gold-dark); transform: translateY(-1px); }
+  .lookup-btn:active { transform: translateY(0); }
+
+  .input-hint {
+    font-size: 0.75rem;
+    color: var(--ink3);
+    margin-top: 0.6rem;
+  }
+
+  /* ── LOADING ── */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 2.5rem;
+  }
+  .loading.show { display: block; }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading p { font-size: 0.85rem; color: var(--ink3); }
+
+  /* ── ERROR ── */
+  .error-box {
+    display: none;
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    border-radius: 11px;
+    padding: 1.1rem 1.3rem;
+    font-size: 0.875rem;
+    color: var(--red);
+    margin-bottom: 1.25rem;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+  .error-box.show { display: flex; }
+  .error-icon { font-size: 18px; flex-shrink: 0; }
+
+  /* ── RESULT CARD ── */
+  .result-wrap { display: none; animation: fadeUp 0.4s ease; }
+  .result-wrap.show { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Student identity */
+  .student-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.75rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.1rem;
+  }
+  .student-top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .student-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--gold-pale);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .student-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .student-meta {
+    font-size: 0.8rem;
+    color: var(--ink3);
+    margin-top: 3px;
+  }
+  .student-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border-soft);
+  }
+  .sfield-label {
+    font-size: 0.67rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink3);
+    margin-bottom: 3px;
+  }
+  .sfield-val {
+    font-size: 0.875rem;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* Status card */
+  .status-card {
+    border-radius: 18px;
+    padding: 1.75rem;
+    margin-bottom: 1.1rem;
+    border: 1.5px solid;
+    box-shadow: var(--shadow-sm);
+  }
+  .status-card.pending   { background: var(--amber-bg); border-color: var(--amber-border); }
+  .status-card.approved  { background: var(--green-bg); border-color: var(--green-border); }
+  .status-card.disbursed { background: var(--blue-bg);  border-color: var(--blue-border); }
+  .status-card.overdue   { background: var(--red-bg);   border-color: var(--red-border); }
+  .status-card.collected { background: var(--green-bg); border-color: var(--green-border); }
+  .status-card.rejected  { background: var(--red-bg);   border-color: var(--red-border); }
+
+  .status-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .status-label-sm {
+    font-size: 0.67rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    opacity: 0.7;
+    margin-bottom: 4px;
+  }
+  .status-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  .status-icon { font-size: 2.2rem; }
+
+  .status-card.pending   .status-label-sm,
+  .status-card.pending   .status-title   { color: var(--amber); }
+  .status-card.approved  .status-label-sm,
+  .status-card.approved  .status-title   { color: var(--green); }
+  .status-card.disbursed .status-label-sm,
+  .status-card.disbursed .status-title   { color: var(--blue); }
+  .status-card.overdue   .status-label-sm,
+  .status-card.overdue   .status-title   { color: var(--red); }
+  .status-card.collected .status-label-sm,
+  .status-card.collected .status-title   { color: var(--green); }
+  .status-card.rejected  .status-label-sm,
+  .status-card.rejected  .status-title   { color: var(--red); }
+
+  .status-message {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    opacity: 0.85;
+  }
+  .status-card.pending   .status-message { color: var(--amber); }
+  .status-card.approved  .status-message { color: var(--green); }
+  .status-card.disbursed .status-message { color: var(--blue); }
+  .status-card.overdue   .status-message { color: var(--red); }
+  .status-card.collected .status-message { color: var(--green); }
+  .status-card.rejected  .status-message { color: var(--red); }
+
+  /* Loan details */
+  .loan-details-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.75rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.1rem;
+  }
+  .ldc-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+  }
+  .amount-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1.4rem;
+  }
+  .amount-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .amount-label { font-size: 0.82rem; color: var(--ink3); }
+
+  .loan-rows { border-top: 1px solid var(--border-soft); }
+  .loan-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid rgba(176,141,87,0.08);
+    font-size: 0.875rem;
+  }
+  .loan-row:last-child { border-bottom: none; }
+  .lr-label { color: var(--ink3); }
+  .lr-val   { color: var(--ink); font-weight: 500; }
+  .lr-val.red  { color: var(--red); }
+  .lr-val.green { color: var(--green); }
+
+  /* Progress timeline */
+  .timeline-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.75rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.1rem;
+  }
+  .tl-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+  }
+  .timeline { position: relative; }
+  .tl-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+    position: relative;
+  }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 20px;
+  }
+  .tl-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .tl-dot.done  { background: var(--green); border-color: var(--green); color: #fff; }
+  .tl-dot.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .tl-dot.wait  { background: var(--white); border-color: var(--border); color: var(--ink3); }
+  .tl-line {
+    flex: 1;
+    width: 2px;
+    background: var(--border-soft);
+    margin: 2px 0;
+    min-height: 20px;
+  }
+  .tl-line.done { background: var(--green); opacity: 0.4; }
+  .tl-content { padding-top: 0; }
+  .tl-step-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .tl-step-title.muted { color: var(--ink3); }
+  .tl-step-sub { font-size: 0.77rem; color: var(--ink3); line-height: 1.45; }
+
+  /* Repayment countdown */
+  .countdown-card {
+    background: var(--ink);
+    border-radius: 18px;
+    padding: 1.75rem;
+    margin-bottom: 1.1rem;
+    box-shadow: var(--shadow);
+    display: none;
+  }
+  .countdown-card.show { display: block; }
+  .countdown-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    opacity: 0.6;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .countdown-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 0.875rem 0.5rem;
+    text-align: center;
+  }
+  .countdown-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+  .countdown-unit { font-size: 0.65rem; color: rgba(255,255,255,0.35); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .countdown-due { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
+  .countdown-amount { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 600; color: var(--gold-light); }
+
+  /* Overdue warning */
+  .overdue-card {
+    background: var(--red);
+    border-radius: 18px;
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.1rem;
+    display: none;
+  }
+  .overdue-card.show { display: block; }
+  .overdue-card p { font-size: 0.875rem; color: rgba(255,255,255,0.9); line-height: 1.6; }
+  .overdue-card p strong { color: #fff; }
+
+  /* Contact card */
+  .help-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .help-text { font-size: 0.82rem; color: var(--ink2); line-height: 1.5; }
+  .help-text strong { color: var(--ink); font-weight: 500; }
+  .help-btn {
+    background: var(--white);
+    color: var(--gold-dark);
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .help-btn:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
+
+  /* Demo note */
+  .demo-note {
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: 11px;
+    padding: 1rem 1.25rem;
+    font-size: 0.8rem;
+    color: var(--blue);
+    margin-bottom: 1.5rem;
+    line-height: 1.55;
+  }
+  .demo-note strong { font-weight: 500; }
+
+  /* Footer */
+  footer {
+    background: var(--ink);
+    padding: 1.5rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 3rem;
+  }
+  .footer-logo { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #fff; }
+  .footer-logo span { color: var(--gold); }
+  .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 1.25rem; }
+    .page { padding: 2.5rem 1.25rem 4rem; }
+    .lookup-title { font-size: 1.9rem; }
+    .student-fields { grid-template-columns: 1fr; }
+    .countdown-grid { grid-template-columns: repeat(2, 1fr); }
+    .help-card { flex-direction: column; align-items: flex-start; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">KatDesign <span>Holdings</span></a>
+  <a class="nav-back" href="index.html">← Back to website</a>
+</nav>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="lookup-header">
+    <div class="eyebrow">Loan Tracker</div>
+    <div class="lookup-title">Check Your <em>Loan</em> Status</div>
+    <p class="lookup-sub">Enter your Omang / ID number to instantly see your loan status, repayment amount, and due date.</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-card">
+    <div class="input-group">
+      <input type="text" id="idInput" placeholder="Enter your Omang / ID number" maxlength="20" onkeydown="if(event.key==='Enter')lookupLoan()">
+      <button class="lookup-btn" onclick="lookupLoan()">Check Status</button>
+    </div>
+    <div class="input-hint">Your ID number is the same one used on your loan application.</div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox">
+    <span class="error-icon">⚠</span>
+    <span id="errorMsg">No loan found for this ID number. Please check and try again.</span>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Looking up your loan...</p>
+  </div>
+
+  <!-- Result -->
+  <div class="result-wrap" id="resultWrap">
+
+    <!-- Student identity -->
+    <div class="student-card">
+      <div class="student-top">
+        <div class="student-avatar" id="resAvatar">KM</div>
+        <div>
+          <div class="student-name" id="resName">Keabetswe Moagi</div>
+          <div class="student-meta" id="resMeta">UB · DPSM · ID: 123456789</div>
+        </div>
+      </div>
+      <div class="student-fields">
+        <div>
+          <div class="sfield-label">Programme</div>
+          <div class="sfield-val" id="resProg">BSc Computer Science</div>
+        </div>
+        <div>
+          <div class="sfield-label">Year of Study</div>
+          <div class="sfield-val" id="resYear">2nd Year</div>
+        </div>
+        <div>
+          <div class="sfield-label">Application Date</div>
+          <div class="sfield-val" id="resAppDate">1 May 2026</div>
+        </div>
+        <div>
+          <div class="sfield-label">Loan Reference</div>
+          <div class="sfield-val" id="resRef">KDH-2026-001</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status card -->
+    <div class="status-card" id="resStatusCard">
+      <div class="status-top">
+        <div>
+          <div class="status-label-sm">Current Status</div>
+          <div class="status-title" id="resStatusTitle">Pending Review</div>
+        </div>
+        <div class="status-icon" id="resStatusIcon">⏳</div>
+      </div>
+      <div class="status-message" id="resStatusMsg">Your application has been received and is currently under review. A loan officer will contact you within 72 hours.</div>
+    </div>
+
+    <!-- Overdue warning -->
+    <div class="overdue-card" id="overdueCard">
+      <p><strong>⚠ Immediate Action Required</strong><br>Your repayment debit order failed. Please ensure your bank account has sufficient funds and contact us immediately to avoid further charges and referral for collections.</p>
+    </div>
+
+    <!-- Countdown (shown when disbursed) -->
+    <div class="countdown-card" id="countdownCard">
+      <div class="countdown-title">Time until repayment deduction</div>
+      <div class="countdown-grid">
+        <div class="countdown-box"><div class="countdown-num" id="cdDays">28</div><div class="countdown-unit">Days</div></div>
+        <div class="countdown-box"><div class="countdown-num" id="cdHours">14</div><div class="countdown-unit">Hours</div></div>
+        <div class="countdown-box"><div class="countdown-num" id="cdMins">22</div><div class="countdown-unit">Mins</div></div>
+        <div class="countdown-box"><div class="countdown-num" id="cdSecs">08</div><div class="countdown-unit">Secs</div></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="countdown-due">Due date: <span id="cdDueDate">2 Jun 2026</span></div>
+        <div class="countdown-amount" id="cdAmount">P1,560</div>
+      </div>
+    </div>
+
+    <!-- Loan details -->
+    <div class="loan-details-card">
+      <div class="ldc-title">Loan Details</div>
+      <div class="amount-row">
+        <div class="amount-big" id="resLoanAmt">P1,200</div>
+        <div class="amount-label">borrowed</div>
+      </div>
+      <div class="loan-rows">
+        <div class="loan-row"><span class="lr-label">Total repayable</span><span class="lr-val" id="resRepayable">P1,560</span></div>
+        <div class="loan-row"><span class="lr-label">Interest (30% flat)</span><span class="lr-val" id="resInterest">P360</span></div>
+        <div class="loan-row"><span class="lr-label">Repayment method</span><span class="lr-val">Debit order (automatic)</span></div>
+        <div class="loan-row"><span class="lr-label">Bank</span><span class="lr-val" id="resBank">FNB Botswana</span></div>
+        <div class="loan-row"><span class="lr-label">Due date</span><span class="lr-val" id="resDueDate">2 Jun 2026</span></div>
+        <div class="loan-row"><span class="lr-label">Days remaining</span><span class="lr-val green" id="resDaysLeft">31 days</span></div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-card">
+      <div class="tl-title">Application Progress</div>
+      <div class="timeline" id="timeline">
+        <!-- dynamically built -->
+      </div>
+    </div>
+
+    <!-- Help -->
+    <div class="help-card">
+      <div class="help-text">
+        <strong>Need help?</strong><br>
+        Contact our team at <strong>info@katdesignholdings.co.bw</strong> or call <strong>+267 71 XXX XXX</strong> Mon–Fri, 8am–5pm.
+      </div>
+      <a class="help-btn" href="contact.html">Contact Us</a>
+    </div>
+
+  </div><!-- /result-wrap -->
+
+</div><!-- /page -->
+
+<footer>
+  <div class="footer-logo">KatDesign <span>Holdings</span></div>
+  <div class="footer-copy">© 2026 KatDesign Holdings · Gaborone, Botswana</div>
+</footer>
+
+<script src="api.js"></script>
+<script>
+  var countdownInterval = null;
+
+  var STATUS_CONFIG = {
+    pending:   { cssClass:'pending',   title:'Pending Review',      icon:'⏳', msg:'Your application has been received and is under review. A loan officer will contact you within 72 hours.', tlStep:1 },
+    approved:  { cssClass:'approved',  title:'Approved',            icon:'✓',  msg:'Congratulations! Your loan has been approved. Our team will contact you shortly to confirm disbursement.', tlStep:2 },
+    disbursed: { cssClass:'disbursed', title:'Loan Disbursed',      icon:'🏦', msg:'Your loan has been disbursed to your bank account. Repayment will be automatically deducted on your due date.', tlStep:3 },
+    overdue:   { cssClass:'overdue',   title:'Repayment Overdue',   icon:'⚠',  msg:'Your repayment debit order has failed. Please contact us immediately to avoid additional charges.', tlStep:3 },
+    collected: { cssClass:'collected', title:'Fully Repaid',        icon:'🎉', msg:'Your loan has been fully repaid. Thank you! You are welcome to apply for another loan whenever you need one.', tlStep:4 },
+    rejected:  { cssClass:'rejected',  title:'Application Rejected',icon:'✕',  msg:'Unfortunately your application was not approved. Please contact us for more information.', tlStep:0 },
+  };
+
+  async function lookupLoan() {
+    var id = document.getElementById('idInput').value.trim();
+    hideAll();
+    if (!id) { showError('Please enter your Omang / ID number.'); return; }
+
+    document.getElementById('loading').classList.add('show');
+    try {
+      var loan = await KDH.trackLoan(id);
+      document.getElementById('loading').classList.remove('show');
+      renderResult(loan);
+    } catch(e) {
+      document.getElementById('loading').classList.remove('show');
+      showError(e.message || 'No loan found. Please check your ID number and try again.');
+    }
+  }
+
+  function hideAll() {
+    document.getElementById('errorBox').classList.remove('show');
+    document.getElementById('resultWrap').classList.remove('show');
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('countdownCard').classList.remove('show');
+    document.getElementById('overdueCard').classList.remove('show');
+    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+  }
+
+  function showError(msg) {
+    document.getElementById('errorMsg').textContent = msg;
+    document.getElementById('errorBox').classList.add('show');
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  function daysUntil(d) {
+    if (!d) return null;
+    return Math.ceil((new Date(d) - new Date()) / (1000*60*60*24));
+  }
+
+  function renderResult(loan) {
+    var cfg      = STATUS_CONFIG[loan.status] || STATUS_CONFIG.pending;
+    var repayable = loan.repayable;
+    var interest  = loan.interest;
+
+    document.getElementById('resAvatar').textContent  = loan.student.initials;
+    document.getElementById('resName').textContent    = loan.student.name;
+    document.getElementById('resMeta').textContent    = loan.student.institution + ' · ' + loan.student.sponsorship + ' · ID: ' + loan.student.omang;
+    document.getElementById('resProg').textContent    = loan.student.programme;
+    document.getElementById('resYear').textContent    = loan.student.year;
+    document.getElementById('resAppDate').textContent = formatDate(loan.applied_at);
+    document.getElementById('resRef').textContent     = loan.reference;
+
+    var sc = document.getElementById('resStatusCard');
+    sc.className = 'status-card ' + cfg.cssClass;
+    document.getElementById('resStatusTitle').textContent = cfg.title;
+    document.getElementById('resStatusIcon').textContent  = cfg.icon;
+    document.getElementById('resStatusMsg').textContent   = cfg.msg;
+
+    document.getElementById('resLoanAmt').textContent  = 'P' + loan.amount.toLocaleString();
+    document.getElementById('resRepayable').textContent = 'P' + repayable.toLocaleString();
+    document.getElementById('resInterest').textContent  = 'P' + interest.toLocaleString();
+    document.getElementById('resBank').textContent      = loan.bank_name;
+    document.getElementById('resDueDate').textContent   = formatDate(loan.due_date);
+
+    var daysLeft = daysUntil(loan.due_date);
+    var daysEl   = document.getElementById('resDaysLeft');
+    if (loan.status === 'disbursed' && daysLeft !== null) {
+      daysEl.textContent = daysLeft + ' days'; daysEl.className = 'lr-val green';
+    } else if (loan.status === 'overdue') {
+      daysEl.textContent = Math.abs(daysLeft) + ' days overdue'; daysEl.className = 'lr-val red';
+    } else if (loan.status === 'collected') {
+      daysEl.textContent = 'Repaid ✓'; daysEl.className = 'lr-val green';
+    } else {
+      daysEl.textContent = '—'; daysEl.className = 'lr-val';
+    }
+
+    if (loan.status === 'disbursed' && loan.due_date) {
+      document.getElementById('cdDueDate').textContent = formatDate(loan.due_date);
+      document.getElementById('cdAmount').textContent  = 'P' + repayable.toLocaleString();
+      document.getElementById('countdownCard').classList.add('show');
+      startCountdown(loan.due_date);
+    }
+    if (loan.status === 'overdue') document.getElementById('overdueCard').classList.add('show');
+
+    buildTimeline(cfg.tlStep, loan.status);
+    document.getElementById('resultWrap').classList.add('show');
+    document.getElementById('resultWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function buildTimeline(activeStep, status) {
+    var steps = [
+      { label:'Application Submitted', sub:'Form and documents received' },
+      { label:'Under Review',          sub:'Sponsorship and bank details verified' },
+      { label:'Approved',              sub:'Loan offer sent to applicant' },
+      { label:'Funds Disbursed',       sub:'Amount transferred to your bank account' },
+      { label:'Repayment Collected',   sub:'Debit order deducted — loan closed' }
+    ];
+    if (status === 'rejected') {
+      steps = [
+        { label:'Application Submitted', sub:'Form and documents received' },
+        { label:'Under Review',          sub:'Sponsorship and bank details checked' },
+        { label:'Application Rejected',  sub:'Eligibility criteria not met' }
+      ];
+      activeStep = 2;
+    }
+    var html = '';
+    for (var i = 0; i < steps.length; i++) {
+      var isDone   = i < activeStep;
+      var isActive = i === activeStep;
+      var dotClass = isDone ? 'done' : (isActive ? 'active' : 'wait');
+      var isLast   = i === steps.length - 1;
+      html += '<div class="tl-item"><div class="tl-dot-wrap">';
+      html += '<div class="tl-dot ' + dotClass + '">' + (isDone ? '✓' : i+1) + '</div>';
+      if (!isLast) html += '<div class="tl-line ' + (isDone ? 'done' : '') + '"></div>';
+      html += '</div><div class="tl-content">';
+      html += '<div class="tl-step-title' + (isDone||isActive ? '' : ' muted') + '">' + steps[i].label + '</div>';
+      html += '<div class="tl-step-sub">' + steps[i].sub + '</div>';
+      html += '</div></div>';
+    }
+    document.getElementById('timeline').innerHTML = html;
+  }
+
+  function startCountdown(dueDate) {
+    function tick() {
+      var diff = new Date(dueDate) - new Date();
+      if (diff <= 0) { clearInterval(countdownInterval); return; }
+      var d = Math.floor(diff/(1000*60*60*24));
+      var h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+      var m = Math.floor((diff%(1000*60*60))/(1000*60));
+      var s = Math.floor((diff%(1000*60))/1000);
+      document.getElementById('cdDays').textContent  = String(d).padStart(2,'0');
+      document.getElementById('cdHours').textContent = String(h).padStart(2,'0');
+      document.getElementById('cdMins').textContent  = String(m).padStart(2,'0');
+      document.getElementById('cdSecs').textContent  = String(s).padStart(2,'0');
+    }
+    tick();
+    countdownInterval = setInterval(tick, 1000);
+  }
+
+  document.getElementById('idInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') lookupLoan();
+  });
+</script>
+</body>
+</html>

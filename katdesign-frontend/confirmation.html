@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KatDesign Holdings — Application Received</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #0d1117; --ink2: #3a4556; --ink3: #6b7a90;
+    --gold: #b08d57; --gold-light: #e8d5b0; --gold-dark: #7a6038;
+    --bg: #faf8f4; --bg2: #f2ede4; --white: #ffffff;
+    --border: rgba(176,141,87,0.22); --border-soft: rgba(176,141,87,0.12);
+    --green: #2d6e35; --green-bg: #e8f4ea; --green-border: rgba(45,110,53,0.2);
+    --shadow: 0 4px 32px rgba(13,17,23,0.09);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 3rem;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+  .logo span { color: var(--gold); }
+
+  /* ── Main ── */
+  .page {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+  }
+  .container { max-width: 580px; width: 100%; text-align: center; animation: fadeUp 0.5s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Check circle */
+  .check-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--green-bg);
+    border: 2px solid var(--green-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .check-svg { width: 36px; height: 36px; }
+  .check-svg path { stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 50; stroke-dashoffset: 50; animation: drawCheck 0.4s ease 0.5s forwards; }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+  .confirm-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+  }
+  .confirm-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  .confirm-title em { color: var(--gold); font-style: normal; }
+  .confirm-sub {
+    font-size: 0.95rem;
+    color: var(--ink3);
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Reference card */
+  .ref-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+  .ref-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  }
+  .ref-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink3);
+    margin-bottom: 6px;
+  }
+  .ref-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+  }
+  .ref-sub { font-size: 0.8rem; color: var(--ink3); margin-bottom: 1.5rem; }
+
+  .ref-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-soft);
+  }
+  .ref-detail-label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); margin-bottom: 3px; }
+  .ref-detail-val   { font-size: 0.875rem; font-weight: 500; color: var(--ink); }
+
+  /* What happens next */
+  .next-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    text-align: left;
+  }
+  .next-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+  }
+  .next-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+  }
+  .next-item:last-child { margin-bottom: 0; }
+  .next-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gold-pale, rgba(176,141,87,0.09));
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .next-item-title { font-size: 0.875rem; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+  .next-item-sub   { font-size: 0.8rem; color: var(--ink3); line-height: 1.5; }
+
+  /* Actions */
+  .actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.9rem 2rem;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--gold-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: none;
+    color: var(--gold);
+    border: 1.5px solid var(--gold);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.9rem 2rem;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-outline:hover { background: rgba(176,141,87,0.08); transform: translateY(-1px); }
+
+  footer {
+    background: var(--ink);
+    padding: 1.5rem 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .footer-logo { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: #fff; }
+  .footer-logo span { color: var(--gold); }
+  .footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 1.25rem; }
+    .confirm-title { font-size: 1.8rem; }
+    .ref-details { grid-template-columns: 1fr; }
+    .actions { flex-direction: column; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">KatDesign <span>Holdings</span></a>
+</nav>
+
+<div class="page">
+  <div class="container">
+
+    <div class="check-circle">
+      <svg class="check-svg" viewBox="0 0 36 36">
+        <path d="M7 18 L15 26 L29 10" class="check-svg path"/>
+      </svg>
+    </div>
+
+    <div class="confirm-eyebrow">Application Received</div>
+    <div class="confirm-title">You're all <em>set!</em></div>
+    <p class="confirm-sub">Your loan application and debit order mandate have been successfully submitted. Save your reference number below — you'll need it to track your application.</p>
+
+    <!-- Reference card -->
+    <div class="ref-card">
+      <div class="ref-label">Your Application Reference</div>
+      <div class="ref-number" id="refNum">KDH-2026-019</div>
+      <div class="ref-sub">Keep this number safe — use it to track your loan status.</div>
+      <div class="ref-details">
+        <div>
+          <div class="ref-detail-label">Submission Date</div>
+          <div class="ref-detail-val" id="refDate">2 May 2026</div>
+        </div>
+        <div>
+          <div class="ref-detail-label">Decision Expected</div>
+          <div class="ref-detail-val" id="refDecision">Within 72 hours</div>
+        </div>
+        <div>
+          <div class="ref-detail-label">Loan Amount</div>
+          <div class="ref-detail-val" id="refAmount">—</div>
+        </div>
+        <div>
+          <div class="ref-detail-label">Total Repayable</div>
+          <div class="ref-detail-val" id="refRepay">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- What happens next -->
+    <div class="next-card">
+      <div class="next-title">What Happens Next</div>
+      <div class="next-item">
+        <div class="next-num">1</div>
+        <div>
+          <div class="next-item-title">Verification (within 72 hours)</div>
+          <div class="next-item-sub">Our team will verify your government sponsorship, student enrolment, and bank account details.</div>
+        </div>
+      </div>
+      <div class="next-item">
+        <div class="next-num">2</div>
+        <div>
+          <div class="next-item-title">Decision notification</div>
+          <div class="next-item-sub">You will receive a call or SMS with the outcome of your application. Check your phone regularly.</div>
+        </div>
+      </div>
+      <div class="next-item">
+        <div class="next-num">3</div>
+        <div>
+          <div class="next-item-title">Funds disbursed (if approved)</div>
+          <div class="next-item-sub">On approval, funds are transferred directly to your bank account. Your debit order will be set up automatically.</div>
+        </div>
+      </div>
+      <div class="next-item">
+        <div class="next-num">4</div>
+        <div>
+          <div class="next-item-title">Repayment (1 month later)</div>
+          <div class="next-item-sub">The full repayment amount (including 30% interest) will be automatically deducted from your account exactly one month after disbursement.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn-primary" href="tracker.html">Track Your Application</a>
+      <a class="btn-outline" href="index.html">Back to Homepage</a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">KatDesign <span>Holdings</span></div>
+  <div class="footer-copy">© 2026 KatDesign Holdings · Gaborone, Botswana</div>
+</footer>
+
+<script>
+  /* Pull any data passed via sessionStorage from the application form */
+  var ref   = sessionStorage.getItem('kdh_ref')    || 'KDH-2026-' + String(Math.floor(Math.random()*900)+100);
+  var amt   = sessionStorage.getItem('kdh_amount')  || null;
+  var today = new Date();
+  var opts  = { day: 'numeric', month: 'long', year: 'numeric' };
+
+  document.getElementById('refNum').textContent  = ref;
+  document.getElementById('refDate').textContent = today.toLocaleDateString('en-GB', opts);
+
+  /* Decision deadline = today + 3 days */
+  var deadline = new Date(today);
+  deadline.setDate(deadline.getDate() + 3);
+  document.getElementById('refDecision').textContent = deadline.toLocaleDateString('en-GB', opts);
+
+  if (amt) {
+    var repay = (parseFloat(amt) * 1.3).toFixed(2);
+    document.getElementById('refAmount').textContent = 'P' + parseFloat(amt).toLocaleString();
+    document.getElementById('refRepay').textContent  = 'P' + parseFloat(repay).toLocaleString();
+  }
+
+  /* Draw the SVG checkmark */
+  var path = document.querySelector('.check-svg path');
+  if (path) {
+    path.style.strokeDasharray  = '50';
+    path.style.strokeDashoffset = '50';
+    setTimeout(function() {
+      path.style.transition = 'stroke-dashoffset 0.4s ease';
+      path.style.strokeDashoffset = '0';
+    }, 500);
+  }
+</script>
+</body>
+</html>

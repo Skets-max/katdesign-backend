@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KatDesign Holdings — Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #0d1117; --ink2: #3a4556; --ink3: #6b7a90;
+    --gold: #b08d57; --gold-light: #e8d5b0; --gold-dark: #7a6038;
+    --bg: #faf8f4; --bg2: #f2ede4; --white: #ffffff;
+    --border: rgba(176,141,87,0.22); --border-soft: rgba(176,141,87,0.12);
+    --red: #a32d2d; --red-bg: #fcebeb; --red-border: rgba(163,45,45,0.2);
+    --shadow: 0 8px 48px rgba(13,17,23,0.13);
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background pattern */
+  body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(176,141,87,0.03) 60px, rgba(176,141,87,0.03) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(176,141,87,0.03) 60px, rgba(176,141,87,0.03) 61px);
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(176,141,87,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .login-wrap {
+    width: 100%;
+    max-width: 420px;
+    padding: 1.5rem;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.5s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Logo */
+  .login-logo {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .login-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .login-logo-text span { color: var(--gold); }
+  .login-logo-sub {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Card */
+  .login-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .login-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.02em;
+  }
+  .login-card-sub {
+    font-size: 0.83rem;
+    color: var(--ink3);
+    margin-bottom: 2rem;
+  }
+
+  /* Form */
+  .form-field { margin-bottom: 1.2rem; }
+  .form-field label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink2);
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+  .input-wrap { position: relative; }
+  .form-field input {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--ink);
+    background: var(--bg);
+    outline: none;
+    transition: all 0.2s;
+  }
+  .form-field input:focus {
+    border-color: var(--gold);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(176,141,87,0.1);
+  }
+  .toggle-pw {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--ink3);
+    padding: 4px;
+    transition: color 0.2s;
+  }
+  .toggle-pw:hover { color: var(--gold); }
+
+  /* Remember row */
+  .remember-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+  }
+  .remember-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+  }
+  .remember-label input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--gold);
+    cursor: pointer;
+  }
+  .remember-label span { font-size: 0.8rem; color: var(--ink2); }
+  .forgot-link {
+    font-size: 0.8rem;
+    color: var(--gold);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .forgot-link:hover { color: var(--gold-dark); }
+
+  /* Error */
+  .error-box {
+    display: none;
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    border-radius: 9px;
+    padding: 0.875rem 1rem;
+    font-size: 0.82rem;
+    color: var(--red);
+    margin-bottom: 1.25rem;
+    align-items: center;
+    gap: 8px;
+  }
+  .error-box.show { display: flex; }
+
+  /* Submit */
+  .login-btn {
+    width: 100%;
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.9rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-btn:hover { background: var(--gold-dark); transform: translateY(-1px); }
+  .login-btn:active { transform: translateY(0); }
+  .login-btn.loading { pointer-events: none; opacity: 0.8; }
+
+  .btn-spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto;
+  }
+  .btn-text { display: block; }
+  .login-btn.loading .btn-text { display: none; }
+  .login-btn.loading .btn-spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 1.5rem 0;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider span { font-size: 0.72rem; color: var(--ink3); }
+
+  /* Back link */
+  .back-link {
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+  .back-link a {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .back-link a:hover { color: var(--gold-light); }
+
+  /* Demo hint */
+  .demo-hint {
+    background: rgba(176,141,87,0.1);
+    border: 1px solid rgba(176,141,87,0.2);
+    border-radius: 9px;
+    padding: 0.875rem 1rem;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.55);
+    margin-top: 1.5rem;
+    line-height: 1.6;
+    text-align: center;
+  }
+  .demo-hint strong { color: var(--gold-light); }
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <div class="login-logo">
+    <div class="login-logo-text">KatDesign <span>Holdings</span></div>
+    <div class="login-logo-sub">Admin Portal</div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-card-title">Welcome back</div>
+    <div class="login-card-sub">Sign in to access the loan management dashboard.</div>
+
+    <div class="error-box" id="errorBox">
+      <span>⚠</span>
+      <span id="errorMsg">Incorrect username or password. Please try again.</span>
+    </div>
+
+    <div class="form-field">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="e.g. admin" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <div class="form-field">
+      <label for="password">Password</label>
+      <div class="input-wrap">
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="toggle-pw" onclick="togglePw()" title="Show/hide password" type="button">👁</button>
+      </div>
+    </div>
+
+    <div class="remember-row">
+      <label class="remember-label">
+        <input type="checkbox" id="remember">
+        <span>Remember me</span>
+      </label>
+      <a href="#" class="forgot-link" onclick="forgotPw()">Forgot password?</a>
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">
+      <span class="btn-text">Sign In →</span>
+      <div class="btn-spinner"></div>
+    </button>
+  </div>
+
+  <div class="demo-hint">
+    <strong>Demo credentials</strong><br>
+    Username: <strong>admin</strong> &nbsp;·&nbsp; Password: <strong>admin123</strong>
+  </div>
+
+  <div class="back-link">
+    <a href="index.html">← Back to main website</a>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+  async function doLogin() {
+    var user = document.getElementById('username').value.trim();
+    var pass = document.getElementById('password').value;
+    var btn  = document.getElementById('loginBtn');
+    var err  = document.getElementById('errorBox');
+
+    err.classList.remove('show');
+    if (!user || !pass) {
+      document.getElementById('errorMsg').textContent = 'Please enter both username and password.';
+      err.classList.add('show');
+      return;
+    }
+
+    btn.classList.add('loading');
+    try {
+      await KDH.login(user, pass);
+      window.location.href = 'admin.html';
+    } catch (e) {
+      btn.classList.remove('loading');
+      document.getElementById('errorMsg').textContent = e.message || 'Incorrect username or password.';
+      err.classList.add('show');
+      document.getElementById('password').value = '';
+      document.getElementById('password').focus();
+    }
+  }
+
+  function togglePw() {
+    var inp = document.getElementById('password');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  function forgotPw() {
+    alert('Please contact your system administrator to reset your password.\n\nEmail: info@katdesignholdings.co.bw');
+  }
+
+  document.getElementById('username').focus();
+
+  // If already logged in, skip to dashboard
+  if (KDH && KDH.getToken()) window.location.href = 'admin.html';
+</script>
+</body>
+</html>
