@@ -1224,10 +1224,10 @@
       if (tbody && recent.loans) {
         tbody.innerHTML = recent.loans.slice(0,5).map(function(l) {
           var actions = '';
-          if (l.status === 'pending')   actions = '<button class="action-btn approve" onclick="changeStatus(' + l.id + ','approved',this)">Approve</button><button class="action-btn reject" onclick="changeStatus(' + l.id + ','rejected',this)">Reject</button>';
-          if (l.status === 'approved')  actions = '<button class="action-btn disburse" onclick="changeStatus(' + l.id + ','disbursed',this)">Disburse</button>';
-          if (l.status === 'disbursed') actions = '<button class="action-btn collect" onclick="changeStatus(' + l.id + ','collected',this)">Collected</button><button class="action-btn flag" onclick="changeStatus(' + l.id + ','overdue',this)">Flag</button>';
-          if (l.status === 'overdue')   actions = '<button class="action-btn flag" onclick="changeStatus(' + l.id + ','overdue',this)">Contact</button>';
+          if (l.status === 'pending')   actions = '<button class="action-btn approve" onclick="changeStatus(' + l.id + ',\'approved\',this)">Approve</button><button class="action-btn reject" onclick="changeStatus(' + l.id + ',\'rejected\',this)">Reject</button>';
+          if (l.status === 'approved')  actions = '<button class="action-btn disburse" onclick="changeStatus(' + l.id + ',\'disbursed\',this)">Disburse</button>';
+          if (l.status === 'disbursed') actions = '<button class="action-btn collect" onclick="changeStatus(' + l.id + ',\'collected\',this)">Collected</button><button class="action-btn flag" onclick="changeStatus(' + l.id + ',\'overdue\',this)">Flag</button>';
+          if (l.status === 'overdue')   actions = '<button class="action-btn flag" onclick="changeStatus(' + l.id + ',\'overdue\',this)">Contact</button>';
           return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">ID: ' + l.omang + '</div></td>' +
             '<td>' + (l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0]) + '</td>' +
             '<td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
@@ -1259,9 +1259,9 @@
     if (!tbody) return;
     tbody.innerHTML = loans.map(function(l) {
       var actions = '';
-      if (l.status === 'pending')   actions = '<button class="action-btn approve" onclick="changeStatus(' + l.id + ','approved',this)">Approve</button><button class="action-btn reject" onclick="changeStatus(' + l.id + ','rejected',this)">Reject</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
-      if (l.status === 'approved')  actions = '<button class="action-btn disburse" onclick="changeStatus(' + l.id + ','disbursed',this)">Disburse</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
-      if (l.status === 'disbursed') actions = '<button class="action-btn collect" onclick="changeStatus(' + l.id + ','collected',this)">Collected</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
+      if (l.status === 'pending')   actions = '<button class="action-btn approve" onclick="changeStatus(' + l.id + ',\'approved\',this)">Approve</button><button class="action-btn reject" onclick="changeStatus(' + l.id + ',\'rejected\',this)">Reject</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
+      if (l.status === 'approved')  actions = '<button class="action-btn disburse" onclick="changeStatus(' + l.id + ',\'disbursed\',this)">Disburse</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
+      if (l.status === 'disbursed') actions = '<button class="action-btn collect" onclick="changeStatus(' + l.id + ',\'collected\',this)">Collected</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
       if (l.status === 'rejected' || l.status === 'collected' || l.status === 'overdue') actions = '<button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
       var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
       return '<tr data-status="' + l.status + '">' +
@@ -1277,8 +1277,8 @@
     if (!tbody) return;
     var filtered = loans.filter(l => ['disbursed','overdue','collected'].includes(l.status));
     tbody.innerHTML = filtered.map(function(l) {
-      var action = l.status === 'disbursed' ? '<button class="action-btn collect" onclick="changeStatus(' + l.id + ','collected',this)">Mark Collected</button>' :
-                   l.status === 'overdue'   ? '<button class="action-btn flag" onclick="changeStatus(' + l.id + ','overdue',this)">Contact</button>' : '—';
+      var action = l.status === 'disbursed' ? '<button class="action-btn collect" onclick="changeStatus(' + l.id + ',\'collected\',this)">Mark Collected</button>' :
+                   l.status === 'overdue'   ? '<button class="action-btn flag" onclick="changeStatus(' + l.id + ',\'overdue\',this)">Contact</button>' : '—';
       var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
       return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">' + inst + '</div></td>' +
         '<td>' + (l.bank_name||'—') + '</td><td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
@@ -1292,7 +1292,7 @@
     var filtered = loans.filter(l => ['disbursed','overdue','collected'].includes(l.status));
     tbody.innerHTML = filtered.map(function(l) {
       var debitStatus = l.status === 'collected' ? '<span class="pill pill-collected">Auto</span>' : l.status === 'overdue' ? '<span class="pill pill-failed">Failed</span>' : '<span class="pill pill-upcoming">Scheduled</span>';
-      var action = l.status === 'overdue' ? '<button class="action-btn flag" onclick="changeStatus(' + l.id + ','overdue',this)">Contact</button>' : '—';
+      var action = l.status === 'overdue' ? '<button class="action-btn flag" onclick="changeStatus(' + l.id + ',\'overdue\',this)">Contact</button>' : '—';
       var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
       return '<tr data-status="' + l.status + '">' +
         '<td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">' + inst + '</div></td>' +
