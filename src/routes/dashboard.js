@@ -33,14 +33,19 @@ router.get('/', requireAuth, async (req, res) => {
       ORDER BY a.created_at DESC LIMIT 10
     `);
 
+    // Computed in JS (not SQL) so this query works the same on SQLite and Postgres —
+    // SQLite's datetime('now') has no Postgres equivalent.
+    const nowIso   = new Date().toISOString();
+    const plus7Iso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
     const upcoming = await db.allAsync(`
       SELECT l.reference,l.repayable,l.due_date,
              s.first_name||' '||s.last_name as student_name, s.phone
       FROM loans l JOIN students s ON l.student_id=s.id
       WHERE l.status='disbursed'
-        AND l.due_date BETWEEN datetime('now') AND datetime('now','+7 days')
+        AND l.due_date BETWEEN ? AND ?
       ORDER BY l.due_date ASC
-    `);
+    `, [nowIso, plus7Iso]);
 
     res.json({
       metrics: {
