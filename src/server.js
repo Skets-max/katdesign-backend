@@ -9,6 +9,7 @@ const authRoute         = require('./routes/auth');
 const applicationsRoute = require('./routes/applications');
 const trackerRoute      = require('./routes/tracker');
 const dashboardRoute    = require('./routes/dashboard');
+const messagesRoute     = require('./routes/messages');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -45,6 +46,7 @@ app.use('/api/auth',         authRoute);
 app.use('/api/applications', applicationsRoute);
 app.use('/api/tracker',      trackerRoute);
 app.use('/api/dashboard',    dashboardRoute);
+app.use('/api/messages',     messagesRoute);
 
 // ── Health check ───────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
