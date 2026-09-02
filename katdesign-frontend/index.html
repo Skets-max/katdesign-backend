@@ -772,6 +772,14 @@
   .success-msg.show { display: block; }
   .success-msg .s-title { font-weight: 500; color: var(--gold-dark); font-size: 1rem; margin-bottom: 6px; }
   .success-msg .s-sub { font-size: 0.85rem; color: var(--ink3); line-height: 1.5; }
+  .error-msg {
+    background: rgba(196,60,60,0.08);
+    border: 1px solid rgba(196,60,60,0.35);
+    color: #b23a3a;
+    border-radius: 9px;
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+  }
 
   /* ─── CONTACT ─── */
   .contact-layout {
@@ -1321,17 +1329,18 @@
       </div>
       <div class="contact-form-card">
         <div class="contact-form-title">Send Us a Message</div>
+        <div id="contactError" class="error-msg" style="display:none; margin-bottom: 0.75rem;"></div>
         <div class="cf-field">
           <label>Your Name</label>
-          <input type="text" placeholder="Full name">
+          <input type="text" id="cfName" placeholder="Full name">
         </div>
         <div class="cf-field">
           <label>Email</label>
-          <input type="email" placeholder="your@email.com">
+          <input type="email" id="cfEmail" placeholder="your@email.com">
         </div>
         <div class="cf-field">
           <label>Subject</label>
-          <select>
+          <select id="cfSubject">
             <option>Loan Enquiry</option>
             <option>Application Status</option>
             <option>Repayment / Debit Order Query</option>
@@ -1341,7 +1350,7 @@
         </div>
         <div class="cf-field">
           <label>Message</label>
-          <textarea placeholder="How can we help you?"></textarea>
+          <textarea id="cfMessage" placeholder="How can we help you?"></textarea>
         </div>
         <button class="submit-btn" style="margin-top: 0.5rem;" onclick="submitContact()">Send Message →</button>
         <div class="success-msg" id="contactSuccess" style="margin-top: 1rem;">
@@ -1369,6 +1378,14 @@
     if (links[map[id]]) links[map[id]].classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  /* Honour a #section link when the page loads directly (e.g. from 404.html or tracker.html) */
+  (function() {
+    var hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById('page-' + hash)) {
+      showSection(hash);
+    }
+  })();
 
   /* ── Repayment calculator (home) ── */
   function calcRepay() {
@@ -1470,8 +1487,39 @@
     }
   }
 
-  function submitContact() {
-    document.getElementById('contactSuccess').classList.add('show');
+  async function submitContact() {
+    var errBox = document.getElementById('contactError');
+    errBox.style.display = 'none';
+
+    var name    = document.getElementById('cfName').value.trim();
+    var email   = document.getElementById('cfEmail').value.trim();
+    var subject = document.getElementById('cfSubject').value;
+    var message = document.getElementById('cfMessage').value.trim();
+
+    if (!name || !email || !message) {
+      errBox.textContent = 'Please fill in your name, email, and message.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    var btn = document.querySelector('.contact-form-card .submit-btn');
+    var originalText = btn.textContent;
+    btn.textContent = 'Sending...';
+    btn.disabled = true;
+
+    try {
+      await KDH.submitContactMessage({ name, email, subject, message });
+      document.getElementById('contactSuccess').classList.add('show');
+      document.getElementById('cfName').value = '';
+      document.getElementById('cfEmail').value = '';
+      document.getElementById('cfMessage').value = '';
+    } catch (e) {
+      errBox.textContent = e.message || 'Could not send your message. Please try again.';
+      errBox.style.display = 'block';
+    } finally {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }
   }
 
   /* ── Set today's date on mandate ── */
