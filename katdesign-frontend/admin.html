@@ -1254,7 +1254,7 @@
           if (l.status === 'approved')  actions = '<button class="action-btn disburse" onclick="changeStatus(' + l.id + ',\'disbursed\',this)">Disburse</button>';
           if (l.status === 'disbursed') actions = '<button class="action-btn collect" onclick="changeStatus(' + l.id + ',\'collected\',this)">Collected</button><button class="action-btn flag" onclick="changeStatus(' + l.id + ',\'overdue\',this)">Flag</button>';
           if (l.status === 'overdue')   actions = '<button class="action-btn flag" onclick="changeStatus(' + l.id + ',\'overdue\',this)">Contact</button>';
-          return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">ID: ' + l.omang + '</div></td>' +
+          return '<tr><td><div class="td-name">' + escapeHtml(l.first_name) + ' ' + escapeHtml(l.last_name) + '</div><div class="td-sub">ID: ' + escapeHtml(l.omang) + '</div></td>' +
             '<td>' + (l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0]) + '</td>' +
             '<td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
             '<td>' + pillHtml(l.status) + '</td><td>' + actions + '</td></tr>';
@@ -1291,8 +1291,8 @@
       if (l.status === 'rejected' || l.status === 'collected' || l.status === 'overdue') actions = '<button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
       var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
       return '<tr data-status="' + l.status + '">' +
-        '<td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">ID: ' + l.omang + '</div></td>' +
-        '<td>' + inst + '</td><td>' + l.sponsoring_body + '</td>' +
+        '<td><div class="td-name">' + escapeHtml(l.first_name) + ' ' + escapeHtml(l.last_name) + '</div><div class="td-sub">ID: ' + escapeHtml(l.omang) + '</div></td>' +
+        '<td>' + escapeHtml(inst) + '</td><td>' + escapeHtml(l.sponsoring_body) + '</td>' +
         '<td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
         '<td>' + pillHtml(l.status) + '</td><td>' + actions + '</td></tr>';
     }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:1.5rem">No applications found.</td></tr>';
@@ -1306,8 +1306,8 @@
       var action = l.status === 'disbursed' ? '<button class="action-btn collect" onclick="changeStatus(' + l.id + ',\'collected\',this)">Mark Collected</button>' :
                    l.status === 'overdue'   ? '<button class="action-btn flag" onclick="changeStatus(' + l.id + ',\'overdue\',this)">Contact</button>' : '—';
       var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
-      return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">' + inst + '</div></td>' +
-        '<td>' + (l.bank_name||'—') + '</td><td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
+      return '<tr><td><div class="td-name">' + escapeHtml(l.first_name) + ' ' + escapeHtml(l.last_name) + '</div><div class="td-sub">' + escapeHtml(inst) + '</div></td>' +
+        '<td>' + escapeHtml(l.bank_name||'—') + '</td><td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
         '<td>' + fmtDate(l.due_date) + '</td><td>' + pillHtml(l.status==='collected'?'collected':l.status==='overdue'?'overdue':'active') + '</td><td>' + action + '</td></tr>';
     }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:1.5rem">No disbursed loans yet.</td></tr>';
   }
@@ -1321,8 +1321,8 @@
       var action = l.status === 'overdue' ? '<button class="action-btn flag" onclick="changeStatus(' + l.id + ',\'overdue\',this)">Contact</button>' : '—';
       var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
       return '<tr data-status="' + l.status + '">' +
-        '<td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">' + inst + '</div></td>' +
-        '<td>' + (l.bank_name||'—') + '</td><td>' + fmtMoney(l.repayable) + '</td><td>' + fmtDate(l.due_date) + '</td>' +
+        '<td><div class="td-name">' + escapeHtml(l.first_name) + ' ' + escapeHtml(l.last_name) + '</div><div class="td-sub">' + escapeHtml(inst) + '</div></td>' +
+        '<td>' + escapeHtml(l.bank_name||'—') + '</td><td>' + fmtMoney(l.repayable) + '</td><td>' + fmtDate(l.due_date) + '</td>' +
         '<td>' + debitStatus + '</td><td>' + pillHtml(l.status==='collected'?'collected':l.status==='overdue'?'overdue':'upcoming') + '</td><td>' + action + '</td></tr>';
     }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:1.5rem">No repayments yet.</td></tr>';
   }
@@ -1334,8 +1334,8 @@
     tbody.innerHTML = filtered.map(function(l) {
       var days = l.due_date ? Math.abs(Math.ceil((new Date(l.due_date)-new Date())/(1000*60*60*24))) : '?';
       var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
-      return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">' + inst + ' · ID: ' + l.omang + '</div></td>' +
-        '<td>' + (l.bank_name||'—') + '</td><td>' + fmtMoney(l.repayable) + '</td><td>' + fmtDate(l.due_date) + '</td>' +
+      return '<tr><td><div class="td-name">' + escapeHtml(l.first_name) + ' ' + escapeHtml(l.last_name) + '</div><div class="td-sub">' + inst + ' · ID: ' + escapeHtml(l.omang) + '</div></td>' +
+        '<td>' + escapeHtml(l.bank_name||'—') + '</td><td>' + fmtMoney(l.repayable) + '</td><td>' + fmtDate(l.due_date) + '</td>' +
         '<td class="overdue-days">' + days + ' days</td><td><span class="pill pill-failed">Failed</span></td>' +
         '<td><button class="action-btn flag">Contact</button></td></tr>';
     }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:1.5rem">No overdue accounts.</td></tr>';
@@ -1348,8 +1348,8 @@
       if (!tbody) return;
       tbody.innerHTML = data.loans.map(function(l) {
         var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
-        return '<tr><td><div class="td-name">' + l.first_name + ' ' + l.last_name + '</div><div class="td-sub">ID: ' + l.omang + '</div></td>' +
-          '<td>' + inst + '</td><td>' + l.sponsoring_body + '</td><td>1</td>' +
+        return '<tr><td><div class="td-name">' + escapeHtml(l.first_name) + ' ' + escapeHtml(l.last_name) + '</div><div class="td-sub">ID: ' + escapeHtml(l.omang) + '</div></td>' +
+          '<td>' + escapeHtml(inst) + '</td><td>' + escapeHtml(l.sponsoring_body) + '</td><td>1</td>' +
           '<td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
           '<td>' + pillHtml(l.status) + '</td></tr>';
       }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--ink3)">No students yet.</td></tr>';
