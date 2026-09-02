@@ -1,80 +1,171 @@
-const sqlite3 = require('sqlite3').verbose();
-const bcrypt  = require('bcryptjs');
-const path    = require('path');
-const fs      = require('fs');
+const bcrypt = require('bcryptjs');
+const path   = require('path');
+const fs     = require('fs');
 
-const DB_PATH = path.join(__dirname, '../../data/katdesign.db');
-const dataDir = path.dirname(DB_PATH);
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+// If DATABASE_URL is set (e.g. on Render with a Postgres add-on), use Postgres —
+// data survives redeploys. Otherwise fall back to a local SQLite file, which is
+// simpler for local development but gets wiped on every redeploy on Render's
+// free tier.
+const USE_PG = !!process.env.DATABASE_URL;
 
-const db = new sqlite3.Database(DB_PATH, (err) => {
-  if (err) { console.error('Could not open database:', err.message); process.exit(1); }
-});
+const db = {};
 
-// Promisify helpers
-db.runAsync = (sql, params = []) =>
-  new Promise((resolve, reject) =>
-    db.run(sql, params, function(err) { err ? reject(err) : resolve(this); })
-  );
-db.getAsync = (sql, params = []) =>
-  new Promise((resolve, reject) =>
-    db.get(sql, params, (err, row) => err ? reject(err) : resolve(row))
-  );
-db.allAsync = (sql, params = []) =>
-  new Promise((resolve, reject) =>
-    db.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows))
-  );
+function toPgPlaceholders(sql) {
+  let i = 0;
+  return sql.replace(/\?/g, () => `$${++i}`);
+}
+
+if (USE_PG) {
+  const { Pool, types } = require('pg');
+
+  // Postgres returns COUNT(*)/bigint results as strings by default (to avoid
+  // silent precision loss on huge numbers). This app's counts are always small,
+  // so parse them as normal JS numbers everywhere — this avoids subtle bugs like
+  // `row.c + 1` silently becoming string concatenation ("9" + 1 = "91").
+  types.setTypeParser(20, (val) => parseInt(val, 10)); // OID 20 = int8/bigint
+
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+  db.runAsync = async (sql, params = []) => {
+    const isInsert = /^\s*INSERT/i.test(sql) && !/RETURNING/i.test(sql);
+    const pgSql = toPgPlaceholders(sql) + (isInsert ? ' RETURNING id' : '');
+    const result = await pool.query(pgSql, params);
+    return { lastID: isInsert && result.rows[0] ? result.rows[0].id : undefined, changes: result.rowCount };
+  };
+  db.getAsync = async (sql, params = []) => {
+    const result = await pool.query(toPgPlaceholders(sql), params);
+    return result.rows[0];
+  };
+  db.allAsync = async (sql, params = []) => {
+    const result = await pool.query(toPgPlaceholders(sql), params);
+    return result.rows;
+  };
+} else {
+  const sqlite3 = require('sqlite3').verbose();
+
+  const DB_PATH = path.join(__dirname, '../../data/katdesign.db');
+  const dataDir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
+  const sqliteDb = new sqlite3.Database(DB_PATH, (err) => {
+    if (err) { console.error('Could not open database:', err.message); process.exit(1); }
+  });
+
+  db.runAsync = (sql, params = []) =>
+    new Promise((resolve, reject) =>
+      sqliteDb.run(sql, params, function(err) { err ? reject(err) : resolve(this); })
+    );
+  db.getAsync = (sql, params = []) =>
+    new Promise((resolve, reject) =>
+      sqliteDb.get(sql, params, (err, row) => err ? reject(err) : resolve(row))
+    );
+  db.allAsync = (sql, params = []) =>
+    new Promise((resolve, reject) =>
+      sqliteDb.all(sql, params, (err, rows) => err ? reject(err) : resolve(rows))
+    );
+
+  db._sqlite = sqliteDb; // exposed only for the PRAGMA calls in init()
+}
 
 async function init() {
-  await db.runAsync('PRAGMA journal_mode = WAL');
-  await db.runAsync('PRAGMA foreign_keys = ON');
+  if (USE_PG) {
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS admins (
+      id SERIAL PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE,
+      password TEXT NOT NULL,
+      full_name TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )`);
 
-  await db.runAsync(`CREATE TABLE IF NOT EXISTS admins (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    full_name TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS students (
+      id SERIAL PRIMARY KEY,
+      first_name TEXT NOT NULL, last_name TEXT NOT NULL,
+      omang TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, email TEXT NOT NULL,
+      institution TEXT NOT NULL, programme TEXT NOT NULL,
+      year_of_study TEXT NOT NULL, sponsoring_body TEXT NOT NULL,
+      sponsorship_ref TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )`);
 
-  await db.runAsync(`CREATE TABLE IF NOT EXISTS students (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_name TEXT NOT NULL, last_name TEXT NOT NULL,
-    omang TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, email TEXT NOT NULL,
-    institution TEXT NOT NULL, programme TEXT NOT NULL,
-    year_of_study TEXT NOT NULL, sponsoring_body TEXT NOT NULL,
-    sponsorship_ref TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS loans (
+      id SERIAL PRIMARY KEY,
+      reference TEXT NOT NULL UNIQUE,
+      student_id INTEGER NOT NULL REFERENCES students(id),
+      amount REAL NOT NULL, repayable REAL NOT NULL, interest REAL NOT NULL,
+      purpose TEXT, status TEXT NOT NULL DEFAULT 'pending',
+      bank_name TEXT NOT NULL, account_holder TEXT NOT NULL,
+      account_number TEXT NOT NULL, branch_code TEXT NOT NULL,
+      account_type TEXT NOT NULL,
+      applied_at TIMESTAMP DEFAULT NOW(),
+      approved_at TIMESTAMP, disbursed_at TIMESTAMP,
+      due_date TIMESTAMP, collected_at TIMESTAMP, notes TEXT
+    )`);
 
-  await db.runAsync(`CREATE TABLE IF NOT EXISTS loans (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    reference TEXT NOT NULL UNIQUE,
-    student_id INTEGER NOT NULL REFERENCES students(id),
-    amount REAL NOT NULL, repayable REAL NOT NULL, interest REAL NOT NULL,
-    purpose TEXT, status TEXT NOT NULL DEFAULT 'pending',
-    bank_name TEXT NOT NULL, account_holder TEXT NOT NULL,
-    account_number TEXT NOT NULL, branch_code TEXT NOT NULL,
-    account_type TEXT NOT NULL,
-    applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    approved_at DATETIME, disbursed_at DATETIME,
-    due_date DATETIME, collected_at DATETIME, notes TEXT
-  )`);
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS activity_log (
+      id SERIAL PRIMARY KEY,
+      loan_id INTEGER REFERENCES loans(id),
+      action TEXT NOT NULL, actor TEXT NOT NULL DEFAULT 'system',
+      note TEXT, created_at TIMESTAMP DEFAULT NOW()
+    )`);
 
-  await db.runAsync(`CREATE TABLE IF NOT EXISTS activity_log (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    loan_id INTEGER REFERENCES loans(id),
-    action TEXT NOT NULL, actor TEXT NOT NULL DEFAULT 'system',
-    note TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS contact_messages (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL, email TEXT NOT NULL,
+      subject TEXT NOT NULL, message TEXT NOT NULL,
+      read INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )`);
+  } else {
+    await db.runAsync('PRAGMA journal_mode = WAL');
+    await db.runAsync('PRAGMA foreign_keys = ON');
 
-  await db.runAsync(`CREATE TABLE IF NOT EXISTS contact_messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL, email TEXT NOT NULL,
-    subject TEXT NOT NULL, message TEXT NOT NULL,
-    read INTEGER NOT NULL DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS admins (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL UNIQUE,
+      password TEXT NOT NULL,
+      full_name TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS students (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      first_name TEXT NOT NULL, last_name TEXT NOT NULL,
+      omang TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, email TEXT NOT NULL,
+      institution TEXT NOT NULL, programme TEXT NOT NULL,
+      year_of_study TEXT NOT NULL, sponsoring_body TEXT NOT NULL,
+      sponsorship_ref TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS loans (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      reference TEXT NOT NULL UNIQUE,
+      student_id INTEGER NOT NULL REFERENCES students(id),
+      amount REAL NOT NULL, repayable REAL NOT NULL, interest REAL NOT NULL,
+      purpose TEXT, status TEXT NOT NULL DEFAULT 'pending',
+      bank_name TEXT NOT NULL, account_holder TEXT NOT NULL,
+      account_number TEXT NOT NULL, branch_code TEXT NOT NULL,
+      account_type TEXT NOT NULL,
+      applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      approved_at DATETIME, disbursed_at DATETIME,
+      due_date DATETIME, collected_at DATETIME, notes TEXT
+    )`);
+
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS activity_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      loan_id INTEGER REFERENCES loans(id),
+      action TEXT NOT NULL, actor TEXT NOT NULL DEFAULT 'system',
+      note TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    await db.runAsync(`CREATE TABLE IF NOT EXISTS contact_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL, email TEXT NOT NULL,
+      subject TEXT NOT NULL, message TEXT NOT NULL,
+      read INTEGER NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+  }
 
   // Seed admin
   const existingAdmin = await db.getAsync('SELECT id FROM admins WHERE username = ?', ['admin']);
@@ -87,7 +178,7 @@ async function init() {
 
   // Seed students + loans
   const row = await db.getAsync('SELECT COUNT(*) as count FROM students');
-  if (row.count === 0) {
+  if (Number(row.count) === 0) {
     const students = [
       ['Keabetswe','Moagi',   '123456789','71000001','keabetswe@email.com','University of Botswana (UB)',                 'BSc Computer Science',   '2nd Year','DPSM','DPSM-001'],
       ['Tshepiso', 'Kgosi',   '987654321','71000002','tshepiso@email.com', 'Botswana Accountancy College (BAC)',           'BCom Accounting',        '1st Year','HRDC','HRDC-002'],
@@ -141,3 +232,4 @@ const dbReady = init().catch(err => {
 
 module.exports = db;
 module.exports.ready = dbReady;
+module.exports.usingPostgres = USE_PG;
