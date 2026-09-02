@@ -14,6 +14,10 @@ const messagesRoute     = require('./routes/messages');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Render (and most PaaS hosts) sit behind a reverse proxy — trust the first hop
+// so req.ip reflects the real visitor, which express-rate-limit needs to work per-IP.
+app.set('trust proxy', 1);
+
 // ── Middleware ─────────────────────────────────────────────────────────────────
 // Reflect whatever origin made the request (works for localhost dev, the Render
 // domain, a custom domain, previews, etc.) without needing a hardcoded allowlist.
