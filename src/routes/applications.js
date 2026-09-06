@@ -62,6 +62,23 @@ router.post('/', applyLimiter, async (req, res) => {
     if (isNaN(amt) || amt < 500 || amt > 1500)
       return res.status(400).json({ error: 'Loan amount must be between P500 and P1,500.' });
 
+    // DTEF is currently the only accepted sponsoring body.
+    if (sponsoring_body !== 'DTEF')
+      return res.status(400).json({ error: 'We currently only accept applications sponsored by DTEF.' });
+
+    if (!/^\d{6}$/.test(String(sponsorship_ref)))
+      return res.status(400).json({ error: 'Your DTEF sponsorship reference number must be exactly 6 digits.' });
+
+    if (!/^\d{11}$/.test(String(account_number)))
+      return res.status(400).json({ error: 'Your bank account number must be exactly 11 digits.' });
+
+    // A sponsorship reference number belongs to one specific student — reject it
+    // if it's already registered against a different applicant (someone reusing
+    // or making up someone else's DTEF reference).
+    const refOwner = await db.getAsync('SELECT omang FROM students WHERE sponsorship_ref=?', [sponsorship_ref]);
+    if (refOwner && refOwner.omang !== omang)
+      return res.status(409).json({ error: 'This DTEF sponsorship reference number is already registered to another applicant. If this is a mistake, please contact us.' });
+
     // Check for existing active loan
     const existing = await db.getAsync(
       `SELECT l.id FROM loans l JOIN students s ON l.student_id=s.id
