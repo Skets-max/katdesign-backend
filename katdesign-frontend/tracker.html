@@ -610,9 +610,12 @@
   <div class="search-card">
     <div class="input-group">
       <input type="text" id="idInput" placeholder="Enter your Omang / ID number" maxlength="20" onkeydown="if(event.key==='Enter')lookupLoan()">
+    </div>
+    <div class="input-group" style="margin-top:0.75rem;">
+      <input type="tel" id="phoneInput" placeholder="Phone number used on your application" maxlength="20" onkeydown="if(event.key==='Enter')lookupLoan()">
       <button class="lookup-btn" onclick="lookupLoan()">Check Status</button>
     </div>
-    <div class="input-hint">Your ID number is the same one used on your loan application.</div>
+    <div class="input-hint">For your security, we ask for both your ID number and phone number to confirm it's really you.</div>
   </div>
 
   <!-- Error -->
@@ -748,18 +751,20 @@
   };
 
   async function lookupLoan() {
-    var id = document.getElementById('idInput').value.trim();
+    var id    = document.getElementById('idInput').value.trim();
+    var phone = document.getElementById('phoneInput').value.trim();
     hideAll();
-    if (!id) { showError('Please enter your Omang / ID number.'); return; }
+    if (!id)    { showError('Please enter your Omang / ID number.'); return; }
+    if (!phone) { showError('Please also enter the phone number used on your application.'); return; }
 
     document.getElementById('loading').classList.add('show');
     try {
-      var loan = await KDH.trackLoan(id);
+      var loan = await KDH.trackLoan(id, phone);
       document.getElementById('loading').classList.remove('show');
       renderResult(loan);
     } catch(e) {
       document.getElementById('loading').classList.remove('show');
-      showError(e.message || 'No loan found. Please check your ID number and try again.');
+      showError(e.message || 'No loan found. Please check your ID number and phone number and try again.');
     }
   }
 
