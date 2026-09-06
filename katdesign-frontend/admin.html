@@ -763,6 +763,13 @@
           <div class="detail-field"><div class="d-label">Email Confirmed</div><div class="d-val" id="d9">—</div></div>
           <div class="detail-field"><div class="d-label">Application Date</div><div class="d-val" id="d10">—</div></div>
         </div>
+
+        <div class="d-label" style="margin-top:1rem; margin-bottom:0.5rem;">Omang / ID Photos</div>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+          <img id="detPhotoFront" style="max-width:220px; max-height:160px; border-radius:8px; border:1px solid var(--border); object-fit:contain; cursor:zoom-in;" onclick="window.open(this.src,'_blank')" title="Click to view full size">
+          <img id="detPhotoBack" style="max-width:220px; max-height:160px; border-radius:8px; border:1px solid var(--border); object-fit:contain; cursor:zoom-in;" onclick="window.open(this.src,'_blank')" title="Click to view full size">
+        </div>
+
         <div class="detail-actions">
           <button class="det-btn" id="detVerifyBtn" onclick="verifyIdentity()">Verify Identity</button>
           <button class="det-btn det-approve"  id="detApproveBtn" onclick="detAction('approved')">Approve</button>
@@ -1432,6 +1439,8 @@
       document.getElementById('d9').textContent  = l.email_verified ? 'Yes ✓' : 'Not confirmed yet';
       document.getElementById('d9').style.color  = l.email_verified ? 'var(--green)' : 'var(--ink3)';
       document.getElementById('d10').textContent = new Date(l.applied_at).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+      document.getElementById('detPhotoFront').src = l.id_photo_front || '';
+      document.getElementById('detPhotoBack').src  = l.id_photo_back || '';
       document.getElementById('detName').textContent = l.first_name + ' ' + l.last_name;
       var dp = document.getElementById('detStatus');
       var p  = STATUS_PILLS[l.status] || STATUS_PILLS.pending;
