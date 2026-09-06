@@ -1,8 +1,19 @@
 const express         = require('express');
+const rateLimit       = require('express-rate-limit');
 const db              = require('../db/database');
 const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Max 5 new applications per hour per visitor — enough for a genuine applicant
+// to retry a typo, but not enough to script through many fake/probing submissions.
+const applyLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many applications submitted from this connection. Please try again later or contact us.' }
+});
 
 async function generateRef() {
   const row = await db.getAsync('SELECT COUNT(*) as c FROM loans');
@@ -17,7 +28,7 @@ async function logActivity(loan_id, action, actor = 'system', note = null) {
 }
 
 // PUBLIC: POST /api/applications
-router.post('/', async (req, res) => {
+router.post('/', applyLimiter, async (req, res) => {
   try {
     const {
       first_name, last_name, omang, phone, email,
