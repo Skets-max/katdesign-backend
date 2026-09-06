@@ -83,6 +83,10 @@ const KDH = {
     });
   },
 
+  async verifyIdentity(id) {
+    return this.authFetch(`${API_BASE}/applications/${id}/verify-identity`, { method: 'PATCH' });
+  },
+
   // ── Tracker ────────────────────────────────────────────────────────────────
   async trackLoan(omang, phone) {
     const url = `${API_BASE}/tracker/${encodeURIComponent(omang)}?phone=${encodeURIComponent(phone)}`;
