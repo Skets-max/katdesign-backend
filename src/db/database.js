@@ -99,6 +99,7 @@ async function init() {
       identity_verified INTEGER NOT NULL DEFAULT 0,
       email_verified INTEGER NOT NULL DEFAULT 0,
       verification_token TEXT,
+      id_photo_front TEXT, id_photo_back TEXT,
       applied_at TIMESTAMP DEFAULT NOW(),
       approved_at TIMESTAMP, disbursed_at TIMESTAMP,
       due_date TIMESTAMP, collected_at TIMESTAMP, notes TEXT
@@ -154,6 +155,7 @@ async function init() {
       identity_verified INTEGER NOT NULL DEFAULT 0,
       email_verified INTEGER NOT NULL DEFAULT 0,
       verification_token TEXT,
+      id_photo_front TEXT, id_photo_back TEXT,
       applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       approved_at DATETIME, disbursed_at DATETIME,
       due_date DATETIME, collected_at DATETIME, notes TEXT
@@ -192,6 +194,8 @@ async function init() {
   await addColumnIfMissing('loans', 'identity_verified INTEGER NOT NULL DEFAULT 0');
   await addColumnIfMissing('loans', 'email_verified INTEGER NOT NULL DEFAULT 0');
   await addColumnIfMissing('loans', 'verification_token TEXT');
+  await addColumnIfMissing('loans', 'id_photo_front TEXT');
+  await addColumnIfMissing('loans', 'id_photo_back TEXT');
 
   // Seed admin
   const existingAdmin = await db.getAsync('SELECT id FROM admins WHERE username = ?', ['admin']);
