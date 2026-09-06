@@ -1092,7 +1092,7 @@
           <div class="elig-card">
             <div class="elig-title">Requirements</div>
             <ul class="elig-list">
-              <li>Active government sponsorship (DPSM, HRDC, BOTA, etc.)</li>
+              <li>Active DTEF (Department of Tertiary Education Financing) sponsorship</li>
               <li>Currently enrolled at a recognised institution</li>
               <li>Botswana citizen or resident</li>
               <li>Age 18 or above</li>
@@ -1192,18 +1192,14 @@
           <div class="form-field full">
             <label class="form-label">Government Sponsoring Body</label>
             <select>
-              <option value="">Select sponsoring body</option>
-              <option>DPSM – Directorate of Public Service Management</option>
-              <option>HRDC – Human Resource Development Council</option>
-              <option>BOTA – Botswana Training Authority</option>
-              <option>Local Council Sponsorship</option>
-              <option>Other Government Body</option>
+              <option value="DTEF">DTEF – Department of Tertiary Education Financing</option>
             </select>
+            <span class="form-hint">DTEF is currently the only sponsoring body we accept applications through.</span>
           </div>
           <div class="form-field full">
-            <label class="form-label">Sponsorship Reference / Student Number</label>
-            <input type="text" placeholder="Your sponsorship or student reference number">
-            <span class="form-hint">Found on your sponsorship letter or offer document.</span>
+            <label class="form-label">DTEF Sponsorship Reference Number</label>
+            <input type="text" placeholder="Your sponsorship or student reference number" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+            <span class="form-hint">Your 6-digit DTEF reference number, found on your sponsorship letter. This must be your own — using someone else's reference number will get your application rejected.</span>
           </div>
 
           <div class="form-section-heading">Loan Details</div>
@@ -1243,7 +1239,8 @@
           </div>
           <div class="form-field">
             <label class="form-label">Account Number</label>
-            <input type="text" id="acctNum" placeholder="Your account number" oninput="updateMandate()">
+            <input type="text" id="acctNum" placeholder="Your account number" maxlength="11" inputmode="numeric" pattern="[0-9]*" oninput="updateMandate()">
+            <span class="form-hint">Must be exactly 11 digits, matching your bank statement.</span>
           </div>
           <div class="form-field">
             <label class="form-label">Branch Code</label>
@@ -1469,6 +1466,15 @@
 
     formData.amount  = amt;
     formData.purpose = (document.querySelector('#page-apply textarea') || {}).value || '';
+
+    if (!/^\d{6}$/.test(formData.sponsorship_ref || '')) {
+      alert('Your DTEF sponsorship reference number must be exactly 6 digits.');
+      return;
+    }
+    if (!/^\d{11}$/.test(formData.account_number || '')) {
+      alert('Your bank account number must be exactly 11 digits.');
+      return;
+    }
 
     var btn = document.querySelector('#page-apply .submit-btn');
     var origText = btn.textContent;
