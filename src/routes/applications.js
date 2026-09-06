@@ -46,7 +46,8 @@ router.post('/', applyLimiter, async (req, res) => {
       institution, programme, year_of_study,
       sponsoring_body, sponsorship_ref,
       amount, purpose,
-      bank_name, account_holder, account_number, branch_code, account_type
+      bank_name, account_holder, account_number, branch_code, account_type,
+      id_photo_front, id_photo_back
     } = req.body;
 
     const required = { first_name, last_name, omang, phone, email, institution,
@@ -57,6 +58,16 @@ router.post('/', applyLimiter, async (req, res) => {
       if (!val && val !== 0)
         return res.status(400).json({ error: `Missing required field: ${key}` });
     }
+
+    // Photo of the applicant's Omang (front and back), required so an admin
+    // can visually check it against the submitted details before approving.
+    const isDataUri = s => typeof s === 'string' && /^data:image\/(jpeg|jpg|png|webp);base64,/.test(s);
+    if (!isDataUri(id_photo_front) || !isDataUri(id_photo_back))
+      return res.status(400).json({ error: 'Please upload a photo of both the front and back of your Omang / ID card.' });
+    // ~1.5MB decoded per image — generous after client-side compression, but
+    // stops someone bypassing the client and posting huge files directly to the API.
+    if (id_photo_front.length > 2_000_000 || id_photo_back.length > 2_000_000)
+      return res.status(400).json({ error: 'ID photo files are too large. Please use a smaller photo.' });
 
     const amt = parseFloat(amount);
     if (isNaN(amt) || amt < 500 || amt > 1500)
@@ -114,9 +125,9 @@ router.post('/', applyLimiter, async (req, res) => {
     const verificationToken = crypto.randomBytes(20).toString('hex');
 
     const result = await db.runAsync(
-      `INSERT INTO loans (reference,student_id,amount,repayable,interest,purpose,status,bank_name,account_holder,account_number,branch_code,account_type,verification_token)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-      [reference,studentId,amt,repayable,interest,purpose||null,'pending',bank_name,account_holder,account_number,branch_code,account_type,verificationToken]
+      `INSERT INTO loans (reference,student_id,amount,repayable,interest,purpose,status,bank_name,account_holder,account_number,branch_code,account_type,verification_token,id_photo_front,id_photo_back)
+       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      [reference,studentId,amt,repayable,interest,purpose||null,'pending',bank_name,account_holder,account_number,branch_code,account_type,verificationToken,id_photo_front,id_photo_back]
     );
 
     await logActivity(result.lastID, 'application_submitted', 'student');
