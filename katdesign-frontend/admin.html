@@ -748,19 +748,24 @@
           <div class="detail-panel-name" id="detName">Student Details</div>
           <span class="pill pill-pending" id="detStatus">Pending</span>
         </div>
+
+        <div id="detWarnings" style="display:none; margin-bottom:1rem;"></div>
+
         <div class="detail-grid">
           <div class="detail-field"><div class="d-label">Full Name</div><div class="d-val" id="d1">—</div></div>
           <div class="detail-field"><div class="d-label">Institution</div><div class="d-val" id="d2">—</div></div>
           <div class="detail-field"><div class="d-label">Sponsoring Body</div><div class="d-val" id="d3">—</div></div>
           <div class="detail-field"><div class="d-label">Loan Amount</div><div class="d-val" id="d4">—</div></div>
           <div class="detail-field"><div class="d-label">Total Repayable</div><div class="d-val" id="d5">—</div></div>
-          <div class="detail-field"><div class="d-label">Bank</div><div class="d-val">FNB Botswana</div></div>
-          <div class="detail-field"><div class="d-label">Account Type</div><div class="d-val">Savings</div></div>
-          <div class="detail-field"><div class="d-label">Debit Mandate</div><div class="d-val" style="color:var(--green)">Signed ✓</div></div>
-          <div class="detail-field"><div class="d-label">Application Date</div><div class="d-val">2 May 2026</div></div>
+          <div class="detail-field"><div class="d-label">Bank</div><div class="d-val" id="d6">—</div></div>
+          <div class="detail-field"><div class="d-label">Account Holder</div><div class="d-val" id="d7">—</div></div>
+          <div class="detail-field"><div class="d-label">Account Type</div><div class="d-val" id="d8">—</div></div>
+          <div class="detail-field"><div class="d-label">Email Confirmed</div><div class="d-val" id="d9">—</div></div>
+          <div class="detail-field"><div class="d-label">Application Date</div><div class="d-val" id="d10">—</div></div>
         </div>
         <div class="detail-actions">
-          <button class="det-btn det-approve"  onclick="detAction('approved')">Approve</button>
+          <button class="det-btn" id="detVerifyBtn" onclick="verifyIdentity()">Verify Identity</button>
+          <button class="det-btn det-approve"  id="detApproveBtn" onclick="detAction('approved')">Approve</button>
           <button class="det-btn det-reject"   onclick="detAction('rejected')">Reject</button>
           <button class="det-btn det-disburse" onclick="detAction('disbursed')">Mark Disbursed</button>
           <button class="det-btn det-close"    onclick="document.getElementById('detailPanel').classList.remove('show')">Close</button>
@@ -1290,8 +1295,16 @@
       if (l.status === 'disbursed') actions = '<button class="action-btn collect" onclick="changeStatus(' + l.id + ',\'collected\',this)">Collected</button><button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
       if (l.status === 'rejected' || l.status === 'collected' || l.status === 'overdue') actions = '<button class="action-btn" onclick="showDetail(' + l.id + ')">View</button>';
       var inst = l.institution.match(/\(([^)]+)\)/) ? l.institution.match(/\(([^)]+)\)/)[1] : l.institution.split(' ')[0];
+      var flag = '';
+      if (l.name_mismatch || l.account_reused) {
+        var flagTitle = [];
+        if (l.name_mismatch)  flagTitle.push('Bank account name does not match applicant');
+        if (l.account_reused) flagTitle.push('Bank account reused by another applicant');
+        flag = ' <span title="' + escapeHtml(flagTitle.join(' · ')) + '" style="color:#b23a3a; cursor:help;">⚠</span>';
+      }
+      var idFlag = l.identity_verified ? '' : ' <span title="Identity not yet verified" style="color:var(--gold-dark); cursor:help;">●</span>';
       return '<tr data-status="' + l.status + '">' +
-        '<td><div class="td-name">' + escapeHtml(l.first_name) + ' ' + escapeHtml(l.last_name) + '</div><div class="td-sub">ID: ' + escapeHtml(l.omang) + '</div></td>' +
+        '<td><div class="td-name">' + escapeHtml(l.first_name) + ' ' + escapeHtml(l.last_name) + flag + idFlag + '</div><div class="td-sub">ID: ' + escapeHtml(l.omang) + '</div></td>' +
         '<td>' + escapeHtml(inst) + '</td><td>' + escapeHtml(l.sponsoring_body) + '</td>' +
         '<td>' + fmtMoney(l.amount) + '</td><td>' + fmtMoney(l.repayable) + '</td>' +
         '<td>' + pillHtml(l.status) + '</td><td>' + actions + '</td></tr>';
@@ -1408,21 +1421,74 @@
     try {
       var data = await KDH.getApplication(id);
       var l = data.loan;
-      document.getElementById('d1').textContent = l.first_name + ' ' + l.last_name;
-      document.getElementById('d2').textContent = l.institution;
-      document.getElementById('d3').textContent = l.sponsoring_body;
-      document.getElementById('d4').textContent = fmtMoney(l.amount);
-      document.getElementById('d5').textContent = fmtMoney(l.repayable);
+      document.getElementById('d1').textContent  = l.first_name + ' ' + l.last_name;
+      document.getElementById('d2').textContent  = l.institution;
+      document.getElementById('d3').textContent  = l.sponsoring_body;
+      document.getElementById('d4').textContent  = fmtMoney(l.amount);
+      document.getElementById('d5').textContent  = fmtMoney(l.repayable);
+      document.getElementById('d6').textContent  = l.bank_name;
+      document.getElementById('d7').textContent  = l.account_holder;
+      document.getElementById('d8').textContent  = l.account_type;
+      document.getElementById('d9').textContent  = l.email_verified ? 'Yes ✓' : 'Not confirmed yet';
+      document.getElementById('d9').style.color  = l.email_verified ? 'var(--green)' : 'var(--ink3)';
+      document.getElementById('d10').textContent = new Date(l.applied_at).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
       document.getElementById('detName').textContent = l.first_name + ' ' + l.last_name;
       var dp = document.getElementById('detStatus');
       var p  = STATUS_PILLS[l.status] || STATUS_PILLS.pending;
       dp.className  = 'pill ' + p[0];
       dp.textContent = p[1];
+
+      // Fraud-signal warnings
+      var warnings = [];
+      if (l.name_mismatch) warnings.push('⚠ Bank account holder name ("' + escapeHtml(l.account_holder) + '") does not match the applicant&#39;s name. Double-check this is not someone else&#39;s account.');
+      if (l.account_reused && l.reused_by && l.reused_by.length) {
+        var others = l.reused_by.map(function(r){ return escapeHtml(r.first_name + ' ' + r.last_name); }).join(', ');
+        warnings.push('⚠ This exact bank account is also used on another applicant&#39;s loan (' + others + '). Could be fraud, or a shared family account — verify carefully.');
+      }
+      var wBox = document.getElementById('detWarnings');
+      if (warnings.length) {
+        wBox.innerHTML = warnings.map(function(w){ return '<div class="error-msg" style="margin-bottom:6px;">' + w + '</div>'; }).join('');
+        wBox.style.display = 'block';
+      } else {
+        wBox.style.display = 'none';
+      }
+
+      // Identity verification gate
+      var verifyBtn  = document.getElementById('detVerifyBtn');
+      var approveBtn = document.getElementById('detApproveBtn');
+      if (l.identity_verified) {
+        verifyBtn.textContent = 'Identity Verified ✓';
+        verifyBtn.disabled = true;
+        verifyBtn.style.opacity = '0.6';
+        approveBtn.disabled = false;
+        approveBtn.title = '';
+      } else {
+        verifyBtn.textContent = 'Verify Identity';
+        verifyBtn.disabled = false;
+        verifyBtn.style.opacity = '1';
+        approveBtn.disabled = true;
+        approveBtn.title = "Verify the applicant's identity (e.g. by phone) before approving";
+      }
+
       // Store id for action buttons
       document.getElementById('detailPanel').dataset.loanId = id;
       document.getElementById('detailPanel').classList.add('show');
       document.getElementById('detailPanel').scrollIntoView({ behavior:'smooth', block:'nearest' });
     } catch(e) { alert('Could not load details.'); }
+  }
+
+  async function verifyIdentity() {
+    var id = document.getElementById('detailPanel').dataset.loanId;
+    if (!id) return;
+    if (!confirm("Confirm you have personally verified this applicant's identity (e.g. by phone call)?")) return;
+    try {
+      await KDH.verifyIdentity(id);
+      showToast('Identity marked as verified');
+      showDetail(parseInt(id));
+      loadApplications();
+    } catch(e) {
+      alert(e.message || 'Could not update verification status.');
+    }
   }
 
   function detAction(status) {
