@@ -84,8 +84,9 @@ const KDH = {
   },
 
   // ── Tracker ────────────────────────────────────────────────────────────────
-  async trackLoan(omang) {
-    const res  = await fetch(`${API_BASE}/tracker/${encodeURIComponent(omang)}`);
+  async trackLoan(omang, phone) {
+    const url = `${API_BASE}/tracker/${encodeURIComponent(omang)}?phone=${encodeURIComponent(phone)}`;
+    const res  = await fetch(url);
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Lookup failed.');
     return data;
