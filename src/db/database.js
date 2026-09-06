@@ -96,10 +96,15 @@ async function init() {
       bank_name TEXT NOT NULL, account_holder TEXT NOT NULL,
       account_number TEXT NOT NULL, branch_code TEXT NOT NULL,
       account_type TEXT NOT NULL,
+      identity_verified INTEGER NOT NULL DEFAULT 0,
+      email_verified INTEGER NOT NULL DEFAULT 0,
+      verification_token TEXT,
       applied_at TIMESTAMP DEFAULT NOW(),
       approved_at TIMESTAMP, disbursed_at TIMESTAMP,
       due_date TIMESTAMP, collected_at TIMESTAMP, notes TEXT
     )`);
+    // Safe migration for loans tables created before these columns existed
+    // (handled below via addColumnIfMissing, which works for both dialects).
 
     await db.runAsync(`CREATE TABLE IF NOT EXISTS activity_log (
       id SERIAL PRIMARY KEY,
@@ -146,6 +151,9 @@ async function init() {
       bank_name TEXT NOT NULL, account_holder TEXT NOT NULL,
       account_number TEXT NOT NULL, branch_code TEXT NOT NULL,
       account_type TEXT NOT NULL,
+      identity_verified INTEGER NOT NULL DEFAULT 0,
+      email_verified INTEGER NOT NULL DEFAULT 0,
+      verification_token TEXT,
       applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       approved_at DATETIME, disbursed_at DATETIME,
       due_date DATETIME, collected_at DATETIME, notes TEXT
@@ -166,6 +174,24 @@ async function init() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
   }
+
+  // Safe column migration for databases created before these columns existed
+  // (e.g. your already-live Postgres database) — adds them without touching
+  // any existing data, and does nothing if they're already there.
+  async function addColumnIfMissing(table, columnDef) {
+    try {
+      if (USE_PG) {
+        await db.runAsync(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${columnDef}`);
+      } else {
+        await db.runAsync(`ALTER TABLE ${table} ADD COLUMN ${columnDef}`);
+      }
+    } catch (err) {
+      if (!/duplicate column/i.test(err.message)) throw err;
+    }
+  }
+  await addColumnIfMissing('loans', 'identity_verified INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing('loans', 'email_verified INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing('loans', 'verification_token TEXT');
 
   // Seed admin
   const existingAdmin = await db.getAsync('SELECT id FROM admins WHERE username = ?', ['admin']);
@@ -217,8 +243,8 @@ async function init() {
       const repayable = parseFloat((amount*1.3).toFixed(2));
       const interest  = parseFloat((amount*0.3).toFixed(2));
       await db.runAsync(
-        `INSERT INTO loans (reference,student_id,amount,repayable,interest,purpose,status,bank_name,account_holder,account_number,branch_code,account_type,applied_at,approved_at,disbursed_at,due_date,collected_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-        [ref,sIdx,amount,repayable,interest,'Student expenses',status,bank,holder,acct,branch,type,applied,approved,disbursed,due,collected]
+        `INSERT INTO loans (reference,student_id,amount,repayable,interest,purpose,status,bank_name,account_holder,account_number,branch_code,account_type,identity_verified,email_verified,applied_at,approved_at,disbursed_at,due_date,collected_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        [ref,sIdx,amount,repayable,interest,'Student expenses',status,bank,holder,acct,branch,type,1,1,applied,approved,disbursed,due,collected]
       );
     }
     console.log('✓ Sample data seeded — 9 students, 9 loans');
