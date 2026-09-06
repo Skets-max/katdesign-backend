@@ -1160,6 +1160,23 @@
             <input type="email" placeholder="your@email.com">
           </div>
 
+          <div class="form-section-heading">ID Verification</div>
+          <div class="form-field full">
+            <div class="form-hint" style="margin-bottom:0.75rem;">Please photograph or scan both sides of your Omang / ID card. This is required so we can confirm your identity and protect you from someone else applying using your details.</div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Omang / ID \u2014 Front</label>
+            <input type="file" id="idPhotoFront" accept="image/*" capture="environment" onchange="handleIdPhoto(this,'front')">
+            <img id="idPhotoFrontPreview" style="display:none; max-width:100%; margin-top:8px; border-radius:8px; border:1px solid var(--border);">
+            <span class="form-hint" id="idPhotoFrontStatus"></span>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Omang / ID \u2014 Back</label>
+            <input type="file" id="idPhotoBack" accept="image/*" capture="environment" onchange="handleIdPhoto(this,'back')">
+            <img id="idPhotoBackPreview" style="display:none; max-width:100%; margin-top:8px; border-radius:8px; border:1px solid var(--border);">
+            <span class="form-hint" id="idPhotoBackStatus"></span>
+          </div>
+
           <div class="form-section-heading">Academic &amp; Sponsorship Details</div>
 
           <div class="form-field full">
@@ -1414,6 +1431,44 @@
     document.getElementById('mAcct').textContent = acct;
   }
 
+  var idPhotos = { front: null, back: null };
+
+  function handleIdPhoto(input, side) {
+    var file = input.files && input.files[0];
+    var statusEl  = document.getElementById('idPhoto' + (side === 'front' ? 'Front' : 'Back') + 'Status');
+    var previewEl = document.getElementById('idPhoto' + (side === 'front' ? 'Front' : 'Back') + 'Preview');
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      statusEl.textContent = 'Please choose an image file.';
+      idPhotos[side] = null;
+      return;
+    }
+
+    statusEl.textContent = 'Processing...';
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        // Resize so the file stays small enough to upload quickly and store efficiently.
+        var maxDim = 1200;
+        var w = img.width, h = img.height;
+        if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        idPhotos[side] = dataUrl;
+        previewEl.src = dataUrl;
+        previewEl.style.display = 'block';
+        statusEl.textContent = 'Photo ready \u2713';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function submitApp() {
     if (!document.getElementById('mandateCheck').checked) {
       alert('Please sign the debit order mandate before submitting.');
@@ -1466,6 +1521,13 @@
 
     formData.amount  = amt;
     formData.purpose = (document.querySelector('#page-apply textarea') || {}).value || '';
+
+    if (!idPhotos.front || !idPhotos.back) {
+      alert('Please upload photos of both the front and back of your Omang / ID card.');
+      return;
+    }
+    formData.id_photo_front = idPhotos.front;
+    formData.id_photo_back  = idPhotos.back;
 
     if (!/^\d{6}$/.test(formData.sponsorship_ref || '')) {
       alert('Your DTEF sponsorship reference number must be exactly 6 digits.');
