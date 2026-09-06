@@ -28,8 +28,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Default body size limit (100kb) is too small for base64-encoded ID photos,
+// so it's raised here. The actual per-field size is still capped and validated
+// in the applications route itself.
+app.use(express.json({ limit: '12mb' }));
+app.use(express.urlencoded({ extended: true, limit: '12mb' }));
 
 // Log every request so Render's Logs tab shows exactly what's happening.
 app.use((req, res, next) => {
